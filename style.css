@@ -1,5 +1,5 @@
   .marker {
-    background-image: url('https://www.pinclipart.com/picdir/middle/299-2996192_airplane-flight-plane-icon-symbol-vector-free-vector.png');
+    background-image: url('./plane.png');
     background-size: cover;
     width: 20px;
     height: 20px;
