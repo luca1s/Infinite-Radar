@@ -135,9 +135,9 @@ function loadAircraft() {
                         let newMarker = new mapboxgl.Marker(icon)
                             .setLngLat([aircraft.Longitude, aircraft.Latitude])
                             .setPopup(new mapboxgl.Popup({ offset: 25 }) // add popups
-                                .setHTML('<h5> Callsign: ' + aircraft.CallSign + '</h5><h5> Display Name: ' + aircraft.DisplayName + '</h5><h5> Speed: ' + Math.round(aircraft.Speed) + '</h5><h5> Altitude: ' + Math.round(aircraft.Altitude) + '</h5><h5> Vertical Speed: ' + Math.round(aircraft.VerticalSpeed) + '</h5><h5> Track: ' + Math.round(aircraft.Track) + '</h5>'))
+                                .setHTML('<h5> Callsign: ' + aircraft.CallSign + '</h5><h5> Display Name: ' + aircraft.DisplayName + '</h5><h5> Speed: ' + Math.round(aircraft.Speed) + '</h5><h5> Altitude: ' + Math.round(aircraft.Altitude) + '</h5><h5> Vertical Speed: ' + Math.round(aircraft.VerticalSpeed) + '</h5><h5> Heading: ' + Math.round(aircraft.Heading) + '</h5>'))
                             .addTo(map);
-
+                        newMarker.setRotation(aircraft.Heading - 90);
                         currentMarkers.push(
                             {
                                 id: aircraft.FlightID,
