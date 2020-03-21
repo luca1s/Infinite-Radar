@@ -126,7 +126,8 @@ function loadAircraft() {
                     alert('Something went wrong: ' + err);
                 } else {
                     data.forEach(function (aircraft) {
-
+                        let aircraftName = aircraftList.find(object => object.AircraftId === aircraft.AircraftID).AircraftName
+                        let aircraftLivery = aircraftList.find(object => object.LiveryId === aircraft.LiveryID).LiveryName
                         // create a HTML element for each feature
                         var icon = document.createElement('div');
                         icon.className = 'marker';
@@ -135,7 +136,7 @@ function loadAircraft() {
                         let newMarker = new mapboxgl.Marker(icon)
                             .setLngLat([aircraft.Longitude, aircraft.Latitude])
                             .setPopup(new mapboxgl.Popup({ offset: 25 }) // add popups
-                                .setHTML('<h5> Callsign: ' + aircraft.CallSign + '</h5><h5> Display Name: ' + aircraft.DisplayName + '</h5><h5> Speed: ' + Math.round(aircraft.Speed) + '</h5><h5> Altitude: ' + Math.round(aircraft.Altitude) + '</h5><h5> Vertical Speed: ' + Math.round(aircraft.VerticalSpeed) + '</h5><h5> Heading: ' + Math.round(aircraft.Heading) + '</h5>'))
+                                .setHTML('<p> Callsign: ' + aircraft.CallSign + '</p><p> Display Name: ' + aircraft.DisplayName + '</p><p> Speed: ' + Math.round(aircraft.Speed) + '</p><p> Altitude: ' + Math.round(aircraft.Altitude) + '</p><p> Vertical Speed: ' + Math.round(aircraft.VerticalSpeed) + '</p><p> Heading: ' + Math.round(aircraft.Heading) + '</p><p>Aircraft: ' + aircraftName + ' (' + aircraftLivery + ')</p>'))
                             .addTo(map);
                         newMarker.setRotation(aircraft.Heading - 90);
                         currentMarkers.push(
