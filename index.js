@@ -132,6 +132,9 @@ function loadAircraft() {
                         var icon = document.createElement('div');
                         icon.className = 'marker';
 
+                        icon.addEventListener('click', () => {
+                            loadAircraftPath(aircraft.FlightID)
+                        })
                         // make a marker for each feature and add to the map
                         let newMarker = new mapboxgl.Marker(icon)
                             .setLngLat([aircraft.Longitude, aircraft.Latitude])
@@ -149,6 +152,50 @@ function loadAircraft() {
             })
     }
 }
+
+function loadAircraftPath(pilotId) {
+    getJSON("http://infinite-flight-public-api.cloudapp.net/v1/FlightDetails.aspx?apikey=35f43e73-c592-4ed6-8849-0965db7e2df7&flightid=" + pilotId, function (err, data) {
+        if (err !== null) {
+            alert('Something went wrong: ' + err);
+        } else {
+            let coords = [];
+            data.forEach((step) => {
+                coords.push([step.Longitude, step.Latitude])
+            })
+            drawAircraftPath(coords)
+        }
+    })
+}
+
+function drawAircraftPath(coords) {
+    if (map.getLayer('aircraftPath')) map.removeLayer('aircraftPath');
+    if (map.getSource('aircraftPath')) map.removeSource('aircraftPath');
+    map.addSource('aircraftPath', {
+        'type': 'geojson',
+        'data': {
+            'type': 'Feature',
+            'properties': {},
+            'geometry': {
+                'type': 'LineString',
+                'coordinates': coords
+            }
+        }
+    });
+    map.addLayer({
+        'id': 'aircraftPath',
+        'type': 'line',
+        'source': 'aircraftPath',
+        'layout': {
+            'line-join': 'round',
+            'line-cap': 'round'
+        },
+        'paint': {
+            'line-color': 'red',
+            'line-width': 4
+        }
+    });
+}
+
 
 setInterval(loadAircraft, 30000)
 loadAircraft()
