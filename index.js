@@ -1,7 +1,8 @@
 window.inactive = false
 window.currentMarkers = [];
 window.serverUrl = "http://infinite-flight-public-api.cloudapp.net/v1/Flights.aspx?apikey=35f43e73-c592-4ed6-8849-0965db7e2df7&sessionid=7e5dcd44-1fb5-49cc-bc2c-a9aab1f6a856"
-window.pilotIdPath;
+window.flightIdPath = "";
+window.addedCoords = [];
 
 function idleTimer() {
     var t;
@@ -116,6 +117,29 @@ function changeServer(server) {
     loadAircraft()
 }
 
+function updateAircraft() {
+    getJSON(serverUrl,
+        function (err, data) {
+            if (err !== null) {
+                alert('Something went wrong: ' + err);
+            } else {
+                for (var i = 0; i < (currentMarkers.length - 1); i++) {
+                    if (typeof data.find(item => item.FlightID === currentMarkers[i].id) !== undefined && data.find(item => item.FlightID === currentMarkers[i].id) !== undefined) {
+
+                        let lat = data.find(item => item.FlightID === currentMarkers[i].id).Latitude;
+                        let long = data.find(item => item.FlightID === currentMarkers[i].id).Longitude;
+                        
+                        if (window.flightIdPath !== [] && window.flightIdPath == currentMarkers[i].id) {
+                            window.addedCoords = [long, lat]
+                        }
+                        currentMarkers[i].content
+                            .setLngLat([long, lat])
+                    }
+                }
+            }
+        })
+}
+
 function loadAircraft() {
     if (inactive !== true) {
         if (currentMarkers !== null) {
@@ -136,7 +160,8 @@ function loadAircraft() {
                         icon.className = 'marker';
 
                         icon.addEventListener('click', () => {
-                            window.pilotIdPath = aircraft.FlightID
+                            window.flightIdPath = aircraft.FlightID
+                            window.addedCoords = [];
                             loadAircraftPath()
                         })
                         // make a marker for each feature and add to the map
@@ -158,15 +183,16 @@ function loadAircraft() {
 }
 
 function loadAircraftPath() {
-    getJSON("http://infinite-flight-public-api.cloudapp.net/v1/FlightDetails.aspx?apikey=35f43e73-c592-4ed6-8849-0965db7e2df7&flightid=" + window.pilotIdPath, function (err, data) {
+    getJSON("http://infinite-flight-public-api.cloudapp.net/v1/FlightDetails.aspx?apikey=35f43e73-c592-4ed6-8849-0965db7e2df7&flightid=" + window.flightIdPath, function (err, data) {
         if (err !== null) {
             alert('Something went wrong: ' + err);
         } else {
-            let coords = [];
+            let coordinates = [];
             data.forEach((step) => {
-                coords.push([step.Longitude, step.Latitude])
+                coordinates.push([step.Longitude, step.Latitude])
             })
-            drawAircraftPath(coords)
+            coordinates.push(window.addedCoords)
+            drawAircraftPath(coordinates)
         }
     })
 }
@@ -195,14 +221,12 @@ function drawAircraftPath(coords) {
         },
         'paint': {
             'line-color': 'red',
-            'line-width': 4
+            'line-width': 2
         }
     });
 }
 
 
-setInterval(function() {
-    loadAircraft()
-    loadAircraftPath()
-}, 30000)
+setInterval(updateAircraft, 30000)
+setInterval(loadAircraftPath, 31000)
 loadAircraft()
