@@ -1,6 +1,7 @@
 window.inactive = false
 window.currentMarkers = [];
 window.serverUrl = "http://infinite-flight-public-api.cloudapp.net/v1/Flights.aspx?apikey=35f43e73-c592-4ed6-8849-0965db7e2df7&sessionid=7e5dcd44-1fb5-49cc-bc2c-a9aab1f6a856"
+window.pilotIdPath;
 
 function idleTimer() {
     var t;
@@ -36,6 +37,8 @@ var map = new mapboxgl.Map({
     zoom: '1',
     antialias: true,
 });
+map.dragRotate.disable();
+map.touchZoomRotate.disableRotation();
 
 map.on('load', function () {
     // Insert the layer beneath any symbol layer.
@@ -133,7 +136,8 @@ function loadAircraft() {
                         icon.className = 'marker';
 
                         icon.addEventListener('click', () => {
-                            loadAircraftPath(aircraft.FlightID)
+                            window.pilotIdPath = aircraft.FlightID
+                            loadAircraftPath()
                         })
                         // make a marker for each feature and add to the map
                         let newMarker = new mapboxgl.Marker(icon)
@@ -153,8 +157,8 @@ function loadAircraft() {
     }
 }
 
-function loadAircraftPath(pilotId) {
-    getJSON("http://infinite-flight-public-api.cloudapp.net/v1/FlightDetails.aspx?apikey=35f43e73-c592-4ed6-8849-0965db7e2df7&flightid=" + pilotId, function (err, data) {
+function loadAircraftPath() {
+    getJSON("http://infinite-flight-public-api.cloudapp.net/v1/FlightDetails.aspx?apikey=35f43e73-c592-4ed6-8849-0965db7e2df7&flightid=" + window.pilotIdPath, function (err, data) {
         if (err !== null) {
             alert('Something went wrong: ' + err);
         } else {
@@ -197,5 +201,8 @@ function drawAircraftPath(coords) {
 }
 
 
-setInterval(loadAircraft, 30000)
+setInterval(function() {
+    loadAircraft()
+    loadAircraftPath()
+}, 30000)
 loadAircraft()
