@@ -227,6 +227,6 @@ function drawAircraftPath(coords) {
 }
 
 
-setInterval(updateAircraft, 30000)
-setInterval(loadAircraftPath, 31000)
+setInterval(updateAircraft, 10000)
+setInterval(loadAircraftPath, 11000)
 loadAircraft()
