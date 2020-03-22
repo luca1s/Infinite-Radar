@@ -23,17 +23,30 @@
 </style>
 
 <body>
-    <div class="mdl-layout mdl-js-layout mdl-layout--fixed-drawer">
-        <div class="mdl-layout__drawer">
-            <span class="mdl-layout-title">Infinite Radar</span>
+    <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
+        <header class="mdl-layout__header">
+            <div class="mdl-layout__header-row">
+                <span class="mdl-layout-title">Infinite <b>Radar</b></span>
+                <div class="mdl-layout-spacer"></div>
+                <nav class="mdl-navigation mdl-layout--large-screen-only">
+                    <a class="mdl-navigation__link" onclick="changeServer('casual')">Casual Server</a>
+                    <a class="mdl-navigation__link" onclick="changeServer('training')">Training Server</a>
+                    <a class="mdl-navigation__link" onclick="changeServer('expert')">Expert Server</a>
+                </nav>
+            </div>
+        </header>
+        <div class="mdl-layout__drawer mdl-layout--small-screen-only">
+            <span class="mdl-layout-title">Infinite <b>Radar</b></span>
             <nav class="mdl-navigation">
                 <a class="mdl-navigation__link" onclick="changeServer('casual')">Casual Server</a>
                 <a class="mdl-navigation__link" onclick="changeServer('training')">Training Server</a>
                 <a class="mdl-navigation__link" onclick="changeServer('expert')">Expert Server</a>
             </nav>
         </div>
+        <main class="mdl-layout__content">
+            <div id="map"></div>
+        </main>
     </div>
-    <div id='map'></div>
 </body>
 <script src="./aircraft-list.js"></script>
 <script src="./index.js"></script>
