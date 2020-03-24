@@ -4,6 +4,8 @@ window.serverUrl = "http://infinite-flight-public-api.cloudapp.net/v1/Flights.as
 window.flightIdPath = "";
 window.addedCoords = [];
 
+let developerDisplayNames = ["IFC - Qantas094", "IFYT HymenopusC"]
+
 function idleTimer() {
     var t;
     //window.onload = resetTimer;
@@ -157,7 +159,11 @@ function loadAircraft() {
                         let aircraftLivery = aircraftList.find(object => object.LiveryId === aircraft.LiveryID).LiveryName
                         // create a HTML element for each feature
                         var icon = document.createElement('div');
-                        icon.className = 'marker';
+                        if (developerDisplayNames.includes(aircraft.DisplayName)) {
+                            icon.className = 'marker-developer';
+                        } else {
+                            icon.className = 'marker';
+                        }
 
                         icon.addEventListener('click', () => {
                             window.flightIdPath = aircraft.FlightID
