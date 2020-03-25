@@ -4,7 +4,7 @@ window.serverUrl = "http://infinite-flight-public-api.cloudapp.net/v1/Flights.as
 window.flightIdPath = "";
 window.addedCoords = [];
 
-let developerDisplayNames = ["IFC - Qantas094", "IFYT HymenopusC", "IFC - Luke King-kong", "IPP IFSims"]
+let developerDisplayNames = ["IFC - Qantas094", "IFYT HymenopusC", "IFC - Luke King-kong", "IPP IFSims", "IFC - Ondrejj"]
 
 function idleTimer() {
     var t;
