@@ -15,6 +15,7 @@ function populateInfo(info, aircraft) {
     document.getElementById('verticalspeed').innerText = Math.round(info.VerticalSpeed)
     document.getElementById('heading').innerText = Math.round(info.Heading)
     document.getElementById('aircraft').innerText = aircraft
+    document.getElementById('speed-altitude-graph').style.width = document.getElementById('flight-info-panel').offsetWidth + 'px'
 }
 
 function idleTimer() {
@@ -151,6 +152,9 @@ function updateAircraft() {
                 }
             }
         })
+        if (typeof window.flightIdPath !== "undefined") {
+            getChartData(window.flightIdPath)
+        }
 }
 
 function loadAircraft() {
@@ -177,14 +181,13 @@ function loadAircraft() {
                         }
 
                         icon.addEventListener('click', () => {
+                            populateInfo(aircraft, aircraftName + ' (' + aircraftLivery + ')')
                             window.flightIdPath = aircraft.FlightID
+                            getChartData(window.flightIdPath)
                             window.addedCoords = [];
                             loadAircraftPath()
                         })
 
-                        icon.addEventListener('click', () => {
-                            populateInfo(aircraft, aircraftName + ' (' + aircraftLivery + ')')
-                        })
                         // make a marker for each feature and add to the map
                         let newMarker = new mapboxgl.Marker(icon)
                             .setLngLat([aircraft.Longitude, aircraft.Latitude])

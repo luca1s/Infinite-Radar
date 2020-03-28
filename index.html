@@ -47,45 +47,60 @@
             <div id="map"></div>
 
             <div id="flight-info-panel" style="display: none;">
-                <div class="info-section">
-                    <h3 id="callsign">
-                    </h3>
-                    <p id="displayName">
-                    </p>
-                </div>
-                <div class="info-section">
-                    <h6>
-                        Altitude:
-                    </h6>
-                    <h5 id="altitude">
-                    </h5>
-                </div>
-                <div class="info-section">
-                    <h6>
-                        Speed
-                    </h6>
-                    <h5 id="speed">
-                    </h5>
-                </div>
-                <div class="info-section">
-                    <h6>
-                        Vertical Speed</h6>
-                    <h5 id="verticalspeed">
-                    </h5>
-                </div>
-                <div class="info-section">
-                    <h6>
-                        Heading
-                    </h6>
-                    <h5 id="heading">
-                    </h5>
-                </div>
-                <div class="info-section">
-                    <h6>
-                        Aircraft
-                    </h6>
-                    <h5 id="aircraft">
-                    </h5>
+                <div class="mdl-tabs mdl-js-tabs mdl-js-ripple-effect">
+                    <div class="mdl-tabs__tab-bar">
+                        <a href="#flight-info-data" class="mdl-tabs__tab is-active"><i
+                                class="material-icons">airplanemode_active</i></a>
+                        <a href="#speed-altitude-graph" class="mdl-tabs__tab"><i
+                                class="material-icons">graphic_eq</i></a>
+                    </div>
+                    <div class="mdl-tabs__panel is-active" id='flight-info-data'>
+                        <div class="info-section">
+                            <h3 id="callsign">
+                            </h3>
+                            <p id="displayName">
+                            </p>
+                        </div>
+                        <div class="info-section">
+                            <h6>
+                                Altitude:
+                            </h6>
+                            <h5 id="altitude">
+                            </h5>
+                        </div>
+                        <div class="info-section">
+                            <h6>
+                                Speed
+                            </h6>
+                            <h5 id="speed">
+                            </h5>
+                        </div>
+                        <div class="info-section">
+                            <h6>
+                                Vertical Speed</h6>
+                            <h5 id="verticalspeed">
+                            </h5>
+                        </div>
+                        <div class="info-section">
+                            <h6>
+                                Heading
+                            </h6>
+                            <h5 id="heading">
+                            </h5>
+                        </div>
+                        <div class="info-section">
+                            <h6>
+                                Aircraft
+                            </h6>
+                            <h5 id="aircraft">
+                            </h5>
+                        </div>
+                    </div>
+                    <div class="mdl-tabs__panel" id="speed-altitude-graph">
+                        <div>
+                            <canvas style="max-width: 100%; margin: 0;" id="canvas"></canvas>
+                        </div>
+                    </div>
                 </div>
             </div>
         </main>
@@ -93,5 +108,7 @@
 </body>
 <script src="./aircraft-list.js"></script>
 <script src="./index.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js"></script>
+<script src="./createChart.js"></script>
 
 </html>
