@@ -6,6 +6,17 @@ window.addedCoords = [];
 
 let developerDisplayNames = ["IFC - Qantas094", "IFYT HymenopusC", "IFC - Luke King-kong", "IPP IFSims", "IFC - Ondrejj", "IPP TSATC Sashaz55"]
 
+function populateInfo(info, aircraft) {
+    document.getElementById('flight-info-panel').style.display = "block";
+    document.getElementById('callsign').innerText = info.CallSign
+    document.getElementById('displayName').innerText = info.DisplayName
+    document.getElementById('speed').innerText = Math.round(info.Speed)
+    document.getElementById('altitude').innerText = Math.round(info.Altitude)
+    document.getElementById('verticalspeed').innerText = Math.round(info.VerticalSpeed)
+    document.getElementById('heading').innerText = Math.round(info.Heading)
+    document.getElementById('aircraft').innerText = aircraft
+}
+
 function idleTimer() {
     var t;
     //window.onload = resetTimer;
@@ -170,11 +181,13 @@ function loadAircraft() {
                             window.addedCoords = [];
                             loadAircraftPath()
                         })
+
+                        icon.addEventListener('click', () => {
+                            populateInfo(aircraft, aircraftName + ' (' + aircraftLivery + ')')
+                        })
                         // make a marker for each feature and add to the map
                         let newMarker = new mapboxgl.Marker(icon)
                             .setLngLat([aircraft.Longitude, aircraft.Latitude])
-                            .setPopup(new mapboxgl.Popup({ offset: 25 }) // add popups
-                                .setHTML('<p> Callsign: ' + aircraft.CallSign + '</p><p> Display Name: ' + aircraft.DisplayName + '</p><p> Speed: ' + Math.round(aircraft.Speed) + '</p><p> Altitude: ' + Math.round(aircraft.Altitude) + '</p><p> Vertical Speed: ' + Math.round(aircraft.VerticalSpeed) + '</p><p> Heading: ' + Math.round(aircraft.Heading) + '</p><p>Aircraft: ' + aircraftName + ' (' + aircraftLivery + ')</p>'))
                             .addTo(map);
                         newMarker.setRotation(aircraft.Heading - 90);
                         currentMarkers.push(

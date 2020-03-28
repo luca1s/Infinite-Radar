@@ -37,3 +37,23 @@
     text-align: center;
     font-family: 'Open Sans', sans-serif;
   }
+
+  #flight-info-panel > * {
+    margin-left: 8px;
+    margin-right: 8px;
+  }
+  
+  #flight-info-panel {
+    background-color: white;
+    position: absolute;
+    right: 10px;
+    top: 5%;
+    bottom: 5%;
+    overflow: auto;
+    border: 0.5px solid lightgray;
+  }
+  
+  .info-section {
+    border-top: 0.25px solid lightgray; 
+    border-bottom: 0.25px solid lightgray;
+  }
