@@ -47,6 +47,7 @@
     background-color: white;
     position: absolute;
     right: 10px;
+    width: 350px;
     top: 5%;
     bottom: 5%;
     overflow: auto;

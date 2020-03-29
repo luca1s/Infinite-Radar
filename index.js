@@ -8,6 +8,10 @@ window.addedCoords = [];
 
 let developerDisplayNames = ["IFC - Qantas094", "IFYT HymenopusC", "IFC - Luke King-kong", "IPP IFSims", "IFC - Ondrejj", "IPP TSATC Sashaz55"]
 
+function closeInfo() {
+    document.getElementById('flight-info-panel').style.display = "none";
+}
+
 function populateInfo(info, aircraft, fpl) {
     document.getElementById('flight-info-panel').style.display = "block";
     document.getElementById('callsign').innerText = info.CallSign
@@ -195,19 +199,21 @@ function updateAircraft() {
                                 .setLngLat([long, lat])
                         }
                     }
-                    data.forEach(function (aircraft) {
-                        if (aircraft.FlightID == window.flightIdPath) {
-                            let aircraftName = aircraftList.find(object => object.AircraftId === aircraft.AircraftID).AircraftName
-                            let aircraftLivery = aircraftList.find(object => object.LiveryId === aircraft.LiveryID).LiveryName
-                            getFlightPlan(window.flightIdPath);
-                            populateInfo(aircraft, aircraftName + ' (' + aircraftLivery + ')', window.flightPlan)
+                    if (document.getElementById('flight-info-panel').style.display !== "none") {
+                        data.forEach(function (aircraft) {
+                            if (aircraft.FlightID == window.flightIdPath) {
+                                let aircraftName = aircraftList.find(object => object.AircraftId === aircraft.AircraftID).AircraftName
+                                let aircraftLivery = aircraftList.find(object => object.LiveryId === aircraft.LiveryID).LiveryName
+                                getFlightPlan(window.flightIdPath);
+                                populateInfo(aircraft, aircraftName + ' (' + aircraftLivery + ')', window.flightPlan)
+                            }
+                        })
+                        if (typeof window.flightIdPath !== "undefined") {
+                            getChartData(window.flightIdPath)
                         }
-                    })
+                    }
                 }
             })
-        if (typeof window.flightIdPath !== "undefined") {
-            getChartData(window.flightIdPath)
-        }
     }
 }
 
