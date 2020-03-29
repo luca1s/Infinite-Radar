@@ -1,3 +1,8 @@
+function fileTimeToDate(fileTime) {
+    return new Date(fileTime / 10000 - 11644473600000);
+}
+
+
 let getChartData = function (flightId) {
     getJSON("http://infinite-flight-public-api.cloudapp.net/v1/FlightDetails.aspx?apikey=35f43e73-c592-4ed6-8849-0965db7e2df7&flightid=" + flightId, function (err, data) {
         if (err !== null) {
@@ -8,11 +13,9 @@ let getChartData = function (flightId) {
             }
             let altitude = [];
             let speed = [];
-            let label = 0;
-            let labels = [0]
+            let labels = []
             data.forEach(function (value) {
-                label = label + 1;
-                labels.push(label)
+                labels.push(fileTimeToDate(value.Time).toLocaleTimeString())
                 altitude.push(value.Altitude)
                 speed.push(value.Speed)
             })
@@ -56,7 +59,7 @@ let createChart = function (altitude, speed, timestamps) {
                     id: 'altitude',
                 }],
                 xAxes: [{
-                        display: false //this will remove only the label
+                    display: false //this will remove only the label
                 }]
             }
         }
