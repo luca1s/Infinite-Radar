@@ -1,12 +1,14 @@
 window.inactive = false
 window.currentMarkers = [];
 window.serverUrl = "http://infinite-flight-public-api.cloudapp.net/v1/Flights.aspx?apikey=35f43e73-c592-4ed6-8849-0965db7e2df7&sessionid=7e5dcd44-1fb5-49cc-bc2c-a9aab1f6a856"
+window.flightPlanUrl = "http://infinite-flight-public-api.cloudapp.net/v1/GetFlightPlans.aspx?apikey=35f43e73-c592-4ed6-8849-0965db7e2df7&sessionid=7e5dcd44-1fb5-49cc-bc2c-a9aab1f6a856"
 window.flightIdPath = "";
+window.flightPlan = {};
 window.addedCoords = [];
 
 let developerDisplayNames = ["IFC - Qantas094", "IFYT HymenopusC", "IFC - Luke King-kong", "IPP IFSims", "IFC - Ondrejj", "IPP TSATC Sashaz55"]
 
-function populateInfo(info, aircraft) {
+function populateInfo(info, aircraft, fpl) {
     document.getElementById('flight-info-panel').style.display = "block";
     document.getElementById('callsign').innerText = info.CallSign
     document.getElementById('displayName').innerText = info.DisplayName
@@ -15,7 +17,27 @@ function populateInfo(info, aircraft) {
     document.getElementById('verticalspeed').innerText = Math.round(info.VerticalSpeed)
     document.getElementById('heading').innerText = Math.round(info.Heading)
     document.getElementById('aircraft').innerText = aircraft
+    if (typeof fpl.departure !== "undefined" && typeof fpl.arrival !== "undefined" && typeof fpl.waypoints !== "undefined") {
+        document.getElementById('departure').innerText = fpl.departure
+        document.getElementById('arrival').innerText = fpl.arrival
+        document.getElementById('waypoints').innerHTML = ""
+        for (var i = 0; i < fpl.waypoints.length; i++) {
+            let waypointText = document.createElement('h5')
+            if (i !== 0) {
+                if (i == 1) {
+                    waypointText.innerText = (fpl.waypoints[i] + ' (Departure)')
+                } else if (i == fpl.waypoints.length - 1) {
+                    waypointText.innerText = (fpl.waypoints[i] + ' (Arrival)')
+                } else {
+                    waypointText.innerText = (fpl.waypoints[i])
+                }
+            }
+            document.getElementById('waypoints').appendChild(waypointText)
+        }
+    } 
+    document.getElementById('flight-plan').style.width = document.getElementById('flight-info-panel').offsetWidth + 'px'
     document.getElementById('speed-altitude-graph').style.width = document.getElementById('flight-info-panel').offsetWidth + 'px'
+    window.flightPlan = {};
 }
 
 function idleTimer() {
@@ -123,38 +145,70 @@ var getJSON = function (url, callback) {
 function changeServer(server) {
     if (server == "casual") {
         serverUrl = "http://infinite-flight-public-api.cloudapp.net/v1/Flights.aspx?apikey=35f43e73-c592-4ed6-8849-0965db7e2df7&sessionid=5f3fdc11-35b8-4268-832f-42f1c6539ab9"
+        flightPlanUrl = "http://infinite-flight-public-api.cloudapp.net/v1/GetFlightPlans.aspx?apikey=35f43e73-c592-4ed6-8849-0965db7e2df7&sessionid=5f3fdc11-35b8-4268-832f-42f1c6539ab9"
     } else if (server == "training") {
         serverUrl = "http://infinite-flight-public-api.cloudapp.net/v1/Flights.aspx?apikey=35f43e73-c592-4ed6-8849-0965db7e2df7&sessionid=6a04ffe8-765a-4925-af26-d88029eeadba"
+        flightPlanUrl = "http://infinite-flight-public-api.cloudapp.net/v1/GetFlightPlans.aspx?apikey=35f43e73-c592-4ed6-8849-0965db7e2df7&sessionid=6a04ffe8-765a-4925-af26-d88029eeadba"
     } else {
         serverUrl = "http://infinite-flight-public-api.cloudapp.net/v1/Flights.aspx?apikey=35f43e73-c592-4ed6-8849-0965db7e2df7&sessionid=7e5dcd44-1fb5-49cc-bc2c-a9aab1f6a856"
+        flightPlanUrl = "http://infinite-flight-public-api.cloudapp.net/v1/GetFlightPlans.aspx?apikey=35f43e73-c592-4ed6-8849-0965db7e2df7&sessionid=7e5dcd44-1fb5-49cc-bc2c-a9aab1f6a856"
     }
     loadAircraft()
 }
 
-function updateAircraft() {
-    getJSON(serverUrl,
+function getFlightPlan(flightId) {
+    getJSON(flightPlanUrl,
         function (err, data) {
             if (err !== null) {
                 alert('Something went wrong: ' + err);
             } else {
-                for (var i = 0; i < (currentMarkers.length - 1); i++) {
-                    if (typeof data.find(item => item.FlightID === currentMarkers[i].id) !== undefined && data.find(item => item.FlightID === currentMarkers[i].id) !== undefined) {
-
-                        let lat = data.find(item => item.FlightID === currentMarkers[i].id).Latitude;
-                        let long = data.find(item => item.FlightID === currentMarkers[i].id).Longitude;
-                        
-                        if (window.flightIdPath !== [] && window.flightIdPath == currentMarkers[i].id) {
-                            window.addedCoords = [long, lat]
-                        }
-                        currentMarkers[i].content
-                            .setLngLat([long, lat])
+                data.forEach(function (flightPlan) {
+                    if (flightPlan.FlightID == flightId) {
+                        window.flightPlan = {
+                            "departure": flightPlan.Waypoints[1],
+                            "arrival": flightPlan.DestinationAirportCode,
+                            "waypoints": flightPlan.Waypoints
+                        };
                     }
-                }
+                })
             }
         })
+}
+
+function updateAircraft() {
+    if (inactive !== true) {
+        getJSON(serverUrl,
+            function (err, data) {
+                if (err !== null) {
+                    alert('Something went wrong: ' + err);
+                } else {
+                    for (var i = 0; i < (currentMarkers.length - 1); i++) {
+                        if (typeof data.find(item => item.FlightID === currentMarkers[i].id) !== undefined && data.find(item => item.FlightID === currentMarkers[i].id) !== undefined) {
+
+                            let lat = data.find(item => item.FlightID === currentMarkers[i].id).Latitude;
+                            let long = data.find(item => item.FlightID === currentMarkers[i].id).Longitude;
+
+                            if (window.flightIdPath !== [] && window.flightIdPath == currentMarkers[i].id) {
+                                window.addedCoords = [long, lat]
+                            }
+                            currentMarkers[i].content
+                                .setLngLat([long, lat])
+                        }
+                    }
+                    data.forEach(function (aircraft) {
+                        if (aircraft.FlightID == window.flightIdPath) {
+                            let aircraftName = aircraftList.find(object => object.AircraftId === aircraft.AircraftID).AircraftName
+                            let aircraftLivery = aircraftList.find(object => object.LiveryId === aircraft.LiveryID).LiveryName
+                            getFlightPlan(window.flightIdPath);
+                            populateInfo(aircraft, aircraftName + ' (' + aircraftLivery + ')', window.flightPlan)
+                        }
+                    })
+                }
+            })
         if (typeof window.flightIdPath !== "undefined") {
             getChartData(window.flightIdPath)
         }
+    }
 }
 
 function loadAircraft() {
@@ -181,11 +235,15 @@ function loadAircraft() {
                         }
 
                         icon.addEventListener('click', () => {
-                            populateInfo(aircraft, aircraftName + ' (' + aircraftLivery + ')')
+                            getFlightPlan(aircraft.FlightID);
+                            populateInfo(aircraft, aircraftName + ' (' + aircraftLivery + ')', window.flightPlan)
                             window.flightIdPath = aircraft.FlightID
                             getChartData(window.flightIdPath)
                             window.addedCoords = [];
                             loadAircraftPath()
+                            document.getElementById('waypoints').innerHTML = "<h5>Loading...</h5>"
+                            document.getElementById('departure').innerText = "Loading..."
+                            document.getElementById('arrival').innerText = "Loading..."
                         })
 
                         // make a marker for each feature and add to the map
@@ -217,6 +275,24 @@ function loadAircraftPath() {
             drawAircraftPath(coordinates)
         }
     })
+}
+
+function getUserDetails(userId) {
+    var data = JSON.stringify({ "UserIDs": [userId] });
+
+    var xhr = new XMLHttpRequest();
+    xhr.withCredentials = true;
+
+    xhr.addEventListener("readystatechange", function () {
+        if (this.readyState === 4) {
+            return this.response;
+        }
+    });
+
+    xhr.open("POST", "http://infinite-flight-public-api.cloudapp.net/v1/UserDetails.aspx?apikey=35f43e73-c592-4ed6-8849-0965db7e2df7");
+    xhr.setRequestHeader("Content-Type", "application/json");
+
+    xhr.send(data);
 }
 
 function drawAircraftPath(coords) {

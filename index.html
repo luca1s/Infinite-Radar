@@ -53,6 +53,8 @@
                                 class="material-icons">airplanemode_active</i></a>
                         <a href="#speed-altitude-graph" class="mdl-tabs__tab"><i
                                 class="material-icons">graphic_eq</i></a>
+                        <a href="#flight-plan" class="mdl-tabs__tab"><i
+                                class="material-icons">more_vert</i></a>
                     </div>
                     <div class="mdl-tabs__panel is-active" id='flight-info-data'>
                         <div class="info-section">
@@ -99,6 +101,32 @@
                     <div class="mdl-tabs__panel" id="speed-altitude-graph">
                         <div>
                             <canvas style="max-width: 100%; margin: 0;" id="canvas"></canvas>
+                        </div>
+                    </div>
+                    <div class="mdl-tabs__panel" id="flight-plan">
+                        <div class="info-section">
+                            <h6>
+                                Departure:
+                            </h6>
+                            <h5 id="departure">
+                                Loading...
+                            </h5>
+                        </div>
+                        <div class="info-section">
+                            <h6>
+                                Arrival
+                            </h6>
+                            <h5 id="arrival">
+                                Loading..
+                            </h5>
+                        </div>
+                        <div class="info-section">
+                            <h6>
+                                Waypoints
+                            </h6>
+                            <div id="waypoints" style="overflow: scroll;">
+                                <h5>Loading...</h5>
+                            </div>
                         </div>
                     </div>
                 </div>
