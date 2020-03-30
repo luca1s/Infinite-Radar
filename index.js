@@ -6,7 +6,7 @@ window.flightIdPath = "";
 window.flightPlan = {};
 window.addedCoords = [];
 
-let developerDisplayNames = ["IFC - Qantas094", "IFYT HymenopusC", "IFC - Luke King-kong", "IPP IFSims", "IFC - Ondrejj", "IPP TSATC Sashaz55"]
+let developerDisplayNames = ["IFC - Qantas094", "IFYT HymenopusC", "IPP IFSims", "IFC - Ondrejj", "IPP TSATC Sashaz55"]
 
 function closeInfo() {
     document.getElementById('flight-info-panel').style.display = "none";
