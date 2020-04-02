@@ -81,56 +81,6 @@ var map = new mapboxgl.Map({
 map.dragRotate.disable();
 map.touchZoomRotate.disableRotation();
 
-map.on('load', function () {
-    // Insert the layer beneath any symbol layer.
-    var layers = map.getStyle().layers;
-
-    var labelLayerId;
-    for (var i = 0; i < layers.length; i++) {
-        if (layers[i].type === 'symbol' && layers[i].layout['text-field']) {
-            labelLayerId = layers[i].id;
-            break;
-        }
-    }
-
-    map.addLayer(
-        {
-            'id': '3d-buildings',
-            'source': 'composite',
-            'source-layer': 'building',
-            'filter': ['==', 'extrude', 'true'],
-            'type': 'fill-extrusion',
-            'minzoom': 15,
-            'paint': {
-                'fill-extrusion-color': '#aaa',
-
-                // use an 'interpolate' expression to add a smooth transition effect to the
-                // buildings as the user zooms in
-                'fill-extrusion-height': [
-                    'interpolate',
-                    ['linear'],
-                    ['zoom'],
-                    15,
-                    0,
-                    15.05,
-                    ['get', 'height']
-                ],
-                'fill-extrusion-base': [
-                    'interpolate',
-                    ['linear'],
-                    ['zoom'],
-                    15,
-                    0,
-                    15.05,
-                    ['get', 'min_height']
-                ],
-                'fill-extrusion-opacity': 0.6
-            }
-        },
-        labelLayerId
-    );
-});
-
 var getJSON = function (url, callback) {
     var xhr = new XMLHttpRequest();
     xhr.open('GET', url, true);
@@ -154,12 +104,16 @@ function changeServer(server) {
     if (map.getLayer('aircraftPath')) map.removeLayer('aircraftPath');
     if (map.getSource('aircraftPath')) map.removeSource('aircraftPath');
     if (server == "casual") {
+        document.getElementById('flight-info-data-menu-item').click()
+        document.getElementById('speed-altitude-graph-menu-item').style.display = "none";
         serverUrl = "http://infinite-flight-public-api.cloudapp.net/v1/Flights.aspx?apikey=35f43e73-c592-4ed6-8849-0965db7e2df7&sessionid=5f3fdc11-35b8-4268-832f-42f1c6539ab9"
         flightPlanUrl = "http://infinite-flight-public-api.cloudapp.net/v1/GetFlightPlans.aspx?apikey=35f43e73-c592-4ed6-8849-0965db7e2df7&sessionid=5f3fdc11-35b8-4268-832f-42f1c6539ab9"
     } else if (server == "training") {
+        document.getElementById('speed-altitude-graph-menu-item').style.display = "block";
         serverUrl = "http://infinite-flight-public-api.cloudapp.net/v1/Flights.aspx?apikey=35f43e73-c592-4ed6-8849-0965db7e2df7&sessionid=6a04ffe8-765a-4925-af26-d88029eeadba"
         flightPlanUrl = "http://infinite-flight-public-api.cloudapp.net/v1/GetFlightPlans.aspx?apikey=35f43e73-c592-4ed6-8849-0965db7e2df7&sessionid=6a04ffe8-765a-4925-af26-d88029eeadba"
     } else {
+        document.getElementById('speed-altitude-graph-menu-item').style.display = "block";
         serverUrl = "http://infinite-flight-public-api.cloudapp.net/v1/Flights.aspx?apikey=35f43e73-c592-4ed6-8849-0965db7e2df7&sessionid=7e5dcd44-1fb5-49cc-bc2c-a9aab1f6a856"
         flightPlanUrl = "http://infinite-flight-public-api.cloudapp.net/v1/GetFlightPlans.aspx?apikey=35f43e73-c592-4ed6-8849-0965db7e2df7&sessionid=7e5dcd44-1fb5-49cc-bc2c-a9aab1f6a856"
     }
