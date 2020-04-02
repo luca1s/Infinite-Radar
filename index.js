@@ -150,6 +150,7 @@ function changeServer(server) {
     if (document.getElementById('flight-info-panel').style.display !== "none") {
       closeInfo()
     }
+    window.flightIdPath = "";
     if (map.getLayer('aircraftPath')) map.removeLayer('aircraftPath');
     if (map.getSource('aircraftPath')) map.removeSource('aircraftPath');
     if (server == "casual") {
