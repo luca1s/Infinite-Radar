@@ -38,7 +38,7 @@ function populateInfo(info, aircraft, fpl) {
             }
             document.getElementById('waypoints').appendChild(waypointText)
         }
-    } 
+    }
     document.getElementById('flight-plan').style.width = document.getElementById('flight-info-panel').offsetWidth + 'px'
     document.getElementById('speed-altitude-graph').style.width = document.getElementById('flight-info-panel').offsetWidth + 'px'
     window.flightPlan = {};
@@ -147,6 +147,11 @@ var getJSON = function (url, callback) {
 };
 
 function changeServer(server) {
+    if (document.getElementById('flight-info-panel').style.display !== "none") {
+      closeInfo()
+    }
+    if (map.getLayer('aircraftPath')) map.removeLayer('aircraftPath');
+    if (map.getSource('aircraftPath')) map.removeSource('aircraftPath');
     if (server == "casual") {
         serverUrl = "http://infinite-flight-public-api.cloudapp.net/v1/Flights.aspx?apikey=35f43e73-c592-4ed6-8849-0965db7e2df7&sessionid=5f3fdc11-35b8-4268-832f-42f1c6539ab9"
         flightPlanUrl = "http://infinite-flight-public-api.cloudapp.net/v1/GetFlightPlans.aspx?apikey=35f43e73-c592-4ed6-8849-0965db7e2df7&sessionid=5f3fdc11-35b8-4268-832f-42f1c6539ab9"
