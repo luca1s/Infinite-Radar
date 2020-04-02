@@ -7,6 +7,15 @@
     cursor: pointer;
   }
 
+  .no-select {
+    -webkit-touch-callout: none; /* iOS Safari */
+   -webkit-user-select: none; /* Safari */
+    -khtml-user-select: none; /* Konqueror HTML */
+      -moz-user-select: none; /* Old versions of Firefox */
+       -ms-user-select: none; /* Internet Explorer/Edge */
+           user-select: none;
+  }
+  
   .marker-developer {
     background-image: url('./infinite-radar-developer-plane.png');
     background-size: cover;
@@ -32,7 +41,7 @@
   .mapboxgl-popup {
     max-width: 200px;
   }
-  
+
   .mapboxgl-popup-content {
     text-align: center;
     font-family: 'Open Sans', sans-serif;
@@ -42,7 +51,7 @@
     margin-left: 8px;
     margin-right: 8px;
   }
-  
+
   #flight-info-panel {
     background-color: white;
     position: absolute;
@@ -53,8 +62,8 @@
     overflow: auto;
     border: 0.5px solid lightgray;
   }
-  
+
   .info-section {
-    border-top: 0.25px solid lightgray; 
+    border-top: 0.25px solid lightgray;
     border-bottom: 0.25px solid lightgray;
   }
