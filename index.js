@@ -12,6 +12,18 @@ function closeInfo() {
     document.getElementById('flight-info-panel').style.display = "none";
 }
 
+var styleList = document.getElementById('switch-map-style');
+var styleInputs = styleList.getElementsByTagName('input');
+
+for (var i = 0; i < styleInputs.length; i++) {
+    styleInputs[i].onclick = setStyle;
+}
+
+function setStyle(style) {
+    var styleId = style.target.value;
+    map.setStyle('mapbox://styles/mapbox/' + styleId);
+}
+
 function populateInfo(info, aircraft, fpl) {
     document.getElementById('flight-info-panel').style.display = "block";
     document.getElementById('callsign').innerText = info.CallSign
@@ -74,7 +86,7 @@ idleTimer();
 mapboxgl.accessToken = 'pk.eyJ1IjoiaHltZW5vcHVzIiwiYSI6ImNrN21mbDE1NDBoYTMzbG8waHIzODRnZmQifQ.Sm-p5MctdQjaXASfQWejog';
 var map = new mapboxgl.Map({
     container: 'map',
-    style: 'mapbox://styles/mapbox/satellite-streets-v11',
+    style: 'mapbox://styles/mapbox/streets-v11',
     zoom: '1',
     antialias: true,
 });
@@ -98,7 +110,7 @@ var getJSON = function (url, callback) {
 
 function changeServer(server) {
     if (document.getElementById('flight-info-panel').style.display !== "none") {
-      closeInfo()
+        closeInfo()
     }
     window.flightIdPath = "";
     if (map.getLayer('aircraftPath')) map.removeLayer('aircraftPath');

@@ -45,7 +45,16 @@
         </div>
         <main class="mdl-layout__content">
             <div id="map"></div>
-
+            <div id="switch-map-style">
+                <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect" for="map-option">
+                    <input type="radio" id="map-option" class="mdl-radio__button" name="style-options" value="streets-v11" checked>
+                    <span class="mdl-radio__label">Map</span>
+                </label>
+                <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect" for="satellite-option">
+                    <input type="radio" id="satellite-option" class="mdl-radio__button" name="style-options" value="satellite-streets-v11">
+                    <span class="mdl-radio__label">Satellite</span>
+                </label>
+            </div>
             <div id="flight-info-panel" style="display: none;">
                 <div class="mdl-tabs mdl-js-tabs mdl-js-ripple-effect">
                     <div class="mdl-tabs__tab-bar">
@@ -56,8 +65,7 @@
                                 class="material-icons">airplanemode_active</i></a>
                         <a id="speed-altitude-graph-menu-item" href="#speed-altitude-graph" class="mdl-tabs__tab"><i
                                 class="material-icons">graphic_eq</i></a>
-                        <a href="#flight-plan" class="mdl-tabs__tab"><i
-                                class="material-icons">more_vert</i></a>
+                        <a href="#flight-plan" class="mdl-tabs__tab"><i class="material-icons">more_vert</i></a>
                     </div>
                     <div class="mdl-tabs__panel is-active" id='flight-info-data'>
                         <div class="info-section">
