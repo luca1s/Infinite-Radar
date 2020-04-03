@@ -2,7 +2,9 @@
 <html>
 
 <head>
-    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
     <script src='https://api.mapbox.com/mapbox-gl-js/v1.8.0/mapbox-gl.js'></script>
     <link href='https://api.mapbox.com/mapbox-gl-js/v1.8.0/mapbox-gl.css' rel='stylesheet' />
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
@@ -55,7 +57,7 @@
                     <span class="mdl-radio__label">Satellite</span>
                 </label>
             </div>
-            <div id="flight-info-panel" style="display: none;">
+            <div id="flight-info-panel" class="flight-info-desktop" style="display: none;">
                 <div class="mdl-tabs mdl-js-tabs mdl-js-ripple-effect">
                     <div class="mdl-tabs__tab-bar">
                         <button onclick="closeInfo()" class="mdl-button mdl-js-button mdl-js-ripple-effect">

@@ -6,9 +6,43 @@ window.flightIdPath = "";
 window.flightPlan = {};
 window.addedCoords = [];
 
+
+window.addEventListener("orientationchange", function() {
+    if (isMobile.any() && document.getElementById('flight-info-panel').style.display !== "none") {
+        document.getElementById('flight-info-panel').style.width = "100%";
+        document.getElementById('flight-info-panel').style.height = "100%";
+    }
+  });
+
+
+var isMobile = {
+    Android: function () {
+        return navigator.userAgent.match(/Android/i);
+    },
+    BlackBerry: function () {
+        return navigator.userAgent.match(/BlackBerry/i);
+    },
+    iOS: function () {
+        return navigator.userAgent.match(/iPhone|iPod/i);
+    },
+    Opera: function () {
+        return navigator.userAgent.match(/Opera Mini/i);
+    },
+    Windows: function () {
+        return navigator.userAgent.match(/IEMobile/i) || navigator.userAgent.match(/WPDesktop/i);
+    },
+    any: function () {
+        return (isMobile.Android() || isMobile.BlackBerry() || isMobile.iOS() || isMobile.Opera() || isMobile.Windows());
+    }
+};
+
 let developerDisplayNames = ["IFC - Qantas094", "IFYT HymenopusC", "IPP IFSims", "IFC - Ondrejj", "IPP TSATC Sashaz55"]
 
 function closeInfo() {
+    if (isMobile.any()) {
+        document.getElementById('map').style.visibility = "visible"
+        document.getElementById('switch-map-style').style.display = "block"
+    }
     document.getElementById('flight-info-panel').style.display = "none";
 }
 
@@ -161,6 +195,7 @@ function updateAircraft() {
                     for (var i = 0; i < (currentMarkers.length - 1); i++) {
                         if (typeof data.find(item => item.FlightID === currentMarkers[i].id) !== undefined && data.find(item => item.FlightID === currentMarkers[i].id) !== undefined) {
 
+                            let heading = data.find(item => item.FlightID === currentMarkers[i].id).Heading;
                             let lat = data.find(item => item.FlightID === currentMarkers[i].id).Latitude;
                             let long = data.find(item => item.FlightID === currentMarkers[i].id).Longitude;
 
@@ -169,6 +204,8 @@ function updateAircraft() {
                             }
                             currentMarkers[i].content
                                 .setLngLat([long, lat])
+
+                            currentMarkers[i].content.setRotation(heading - 90);
                         }
                     }
                     if (document.getElementById('flight-info-panel').style.display !== "none") {
@@ -213,6 +250,13 @@ function loadAircraft() {
                         }
 
                         icon.addEventListener('click', () => {
+                            if (isMobile.any()) {
+                                document.getElementById('map').style.visibility = "none"
+                                document.getElementById('switch-map-style').style.display = "none"
+                                document.getElementById('flight-info-panel').className = "flight-info-mobile"
+                            } else {
+                                document.getElementById('flight-info-panel').className = "flight-info-desktop"
+                            }
                             getFlightPlan(aircraft.FlightID);
                             populateInfo(aircraft, aircraftName + ' (' + aircraftLivery + ')', window.flightPlan)
                             window.flightIdPath = aircraft.FlightID
