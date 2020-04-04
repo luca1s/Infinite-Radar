@@ -7,12 +7,14 @@ window.flightPlan = {};
 window.addedCoords = [];
 
 
-window.addEventListener("orientationchange", function() {
+window.addEventListener("orientationchange", function () {
     if (isMobile.any() && document.getElementById('flight-info-panel').style.display !== "none") {
         document.getElementById('flight-info-panel').style.width = "100%";
         document.getElementById('flight-info-panel').style.height = "100%";
+    } else if (isMobile.any() && document.getElementById('small-flight-info-mobile').style.display !== "none") {
+        document.getElementById('small-flight-info-mobile').style.width = "100%";
     }
-  });
+});
 
 
 var isMobile = {
@@ -126,6 +128,8 @@ var map = new mapboxgl.Map({
 });
 map.dragRotate.disable();
 map.touchZoomRotate.disableRotation();
+
+document.getElementById('map').style.height = "100%"
 
 var getJSON = function (url, callback) {
     var xhr = new XMLHttpRequest();
@@ -251,21 +255,36 @@ function loadAircraft() {
 
                         icon.addEventListener('click', () => {
                             if (isMobile.any()) {
-                                document.getElementById('map').style.visibility = "none"
-                                document.getElementById('switch-map-style').style.display = "none"
-                                document.getElementById('flight-info-panel').className = "flight-info-mobile"
+                                document.getElementById('small-flight-info-mobile').style.display = "block";
+                                document.getElementById('callsign-and-display-name-mobile').innerText = aircraft.CallSign + " (" + aircraft.DisplayName + ")"
+                                document.getElementById('mobile-aircraft-type').innerText = aircraftName + ' (' + aircraftLivery + ')'
+                                window.flightIdPath = aircraft.FlightID
+                                window.addedCoords = [];
+                                loadAircraftPath()
+                                document.getElementById('small-flight-info-mobile').addEventListener('click', () => {
+                                    document.getElementById('small-flight-info-mobile').style.display = "none";
+                                    document.getElementById('map').style.visibility = "none"
+                                    document.getElementById('switch-map-style').style.display = "none"
+                                    document.getElementById('flight-info-panel').className = "flight-info-mobile"
+                                    getFlightPlan(aircraft.FlightID);
+                                    populateInfo(aircraft, aircraftName + ' (' + aircraftLivery + ')', window.flightPlan)
+                                    getChartData(window.flightIdPath)
+                                    document.getElementById('waypoints').innerHTML = "<h5>Loading...</h5>"
+                                    document.getElementById('departure').innerText = "Loading..."
+                                    document.getElementById('arrival').innerText = "Loading..."
+                                })
                             } else {
                                 document.getElementById('flight-info-panel').className = "flight-info-desktop"
+                                getFlightPlan(aircraft.FlightID);
+                                populateInfo(aircraft, aircraftName + ' (' + aircraftLivery + ')', window.flightPlan)
+                                window.flightIdPath = aircraft.FlightID
+                                getChartData(window.flightIdPath)
+                                window.addedCoords = [];
+                                loadAircraftPath()
+                                document.getElementById('waypoints').innerHTML = "<h5>Loading...</h5>"
+                                document.getElementById('departure').innerText = "Loading..."
+                                document.getElementById('arrival').innerText = "Loading..."
                             }
-                            getFlightPlan(aircraft.FlightID);
-                            populateInfo(aircraft, aircraftName + ' (' + aircraftLivery + ')', window.flightPlan)
-                            window.flightIdPath = aircraft.FlightID
-                            getChartData(window.flightIdPath)
-                            window.addedCoords = [];
-                            loadAircraftPath()
-                            document.getElementById('waypoints').innerHTML = "<h5>Loading...</h5>"
-                            document.getElementById('departure').innerText = "Loading..."
-                            document.getElementById('arrival').innerText = "Loading..."
                         })
 
                         // make a marker for each feature and add to the map

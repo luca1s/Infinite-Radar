@@ -69,6 +69,19 @@
     border: 0.5px solid lightgray;
   }
 
+  #small-flight-info-mobile {
+    background-color: white;
+    position: absolute;
+    width: 100%;
+    bottom: 0px;
+    padding-bottom: 15px;
+  }
+
+  #small-flight-info-mobile > * {
+    margin-left: 8px;
+    margin-right: 8px;
+  }
+
   .flight-info-desktop {
     right: 10px;
     width: 350px;
