@@ -304,18 +304,21 @@ function loadAircraft() {
 }
 
 function loadAircraftPath() {
-    getJSON("http://infinite-flight-public-api.cloudapp.net/v1/FlightDetails.aspx?apikey=35f43e73-c592-4ed6-8849-0965db7e2df7&flightid=" + window.flightIdPath, function (err, data) {
-        if (err !== null) {
-            alert('Something went wrong: ' + err);
-        } else {
-            let coordinates = [];
-            data.forEach((step) => {
-                coordinates.push([step.Longitude, step.Latitude])
-            })
-            coordinates.push(window.addedCoords)
-            drawAircraftPath(coordinates)
-        }
-    })
+    if (inactive !== true) {
+        getJSON("http://infinite-flight-public-api.cloudapp.net/v1/FlightDetails.aspx?apikey=35f43e73-c592-4ed6-8849-0965db7e2df7&flightid=" + window.flightIdPath, function (err, data) {
+            if (err !== null) {
+                alert('Something went wrong: ' + err);
+            } else {
+                let coordinates = [];
+                data.forEach((step) => {
+                    coordinates.push([step.Longitude, step.Latitude])
+                })
+                coordinates.push(window.addedCoords)
+                drawAircraftPath(coordinates)
+            }
+        })
+    }
+    
 }
 
 function getUserDetails(userId) {
