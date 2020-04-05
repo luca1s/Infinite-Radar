@@ -47,13 +47,23 @@
         </div>
         <main class="mdl-layout__content">
             <div id="map"></div>
-            <div id="switch-map-style">
+            <div id="search">
+                <div style="width: auto;" class="mdl-textfield mdl-js-textfield">
+                    <input class="mdl-textfield__input" onchange="searchCallsign(this.value)" id="search-field">
+                    <label class="mdl-textfield__label" for="search-field">Search...</label>
+                </div>
+                <div id="search-results" style="background-color: white;">
+                </div>
+            </div>
+            <div id="switch-map-style" class="switch-map-style-desktop">
                 <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect" for="map-option">
-                    <input type="radio" id="map-option" class="mdl-radio__button" name="style-options" value="streets-v11" checked>
+                    <input type="radio" id="map-option" class="mdl-radio__button" name="style-options"
+                        value="streets-v11" checked>
                     <span class="mdl-radio__label">Map</span>
                 </label>
                 <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect" for="satellite-option">
-                    <input type="radio" id="satellite-option" class="mdl-radio__button" name="style-options" value="satellite-streets-v11">
+                    <input type="radio" id="satellite-option" class="mdl-radio__button" name="style-options"
+                        value="satellite-streets-v11">
                     <span class="mdl-radio__label">Satellite</span>
                 </label>
             </div>

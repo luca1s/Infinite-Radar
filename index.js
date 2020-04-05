@@ -3,7 +3,6 @@ window.currentMarkers = [];
 window.serverUrl = "http://infinite-flight-public-api.cloudapp.net/v1/Flights.aspx?apikey=35f43e73-c592-4ed6-8849-0965db7e2df7&sessionid=7e5dcd44-1fb5-49cc-bc2c-a9aab1f6a856"
 window.flightPlanUrl = "http://infinite-flight-public-api.cloudapp.net/v1/GetFlightPlans.aspx?apikey=35f43e73-c592-4ed6-8849-0965db7e2df7&sessionid=7e5dcd44-1fb5-49cc-bc2c-a9aab1f6a856"
 window.flightIdPath = "";
-window.flightPlan = {};
 window.addedCoords = [];
 
 
@@ -16,6 +15,10 @@ window.addEventListener("orientationchange", function () {
     }
 });
 
+
+document.getElementById('search-results').addEventListener('focusout', () => {
+    document.getElementById('search-results').style.display = "none";
+})
 
 var isMobile = {
     Android: function () {
@@ -38,10 +41,17 @@ var isMobile = {
     }
 };
 
+if (isMobile.any()) {
+    document.getElementById('switch-map-style').className = "switch-map-style-mobile"
+} else {
+    document.getElementById('switch-map-style').className = "switch-map-style-desktop"
+}
+
 let developerDisplayNames = ["IFC - Qantas094", "IFYT HymenopusC", "IPP IFSims", "IFC - Ondrejj", "IPP TSATC Sashaz55"]
 
 function closeInfo() {
     if (isMobile.any()) {
+        document.getElementById('switch-map-style').style.display = "block";
         document.getElementById('map').style.visibility = "visible"
         document.getElementById('switch-map-style').style.display = "block"
     }
@@ -60,7 +70,7 @@ function setStyle(style) {
     map.setStyle('mapbox://styles/mapbox/' + styleId);
 }
 
-function populateInfo(info, aircraft, fpl) {
+function populateInfo(info, aircraft) {
     document.getElementById('flight-info-panel').style.display = "block";
     document.getElementById('callsign').innerText = info.CallSign
     document.getElementById('displayName').innerText = info.DisplayName
@@ -69,27 +79,8 @@ function populateInfo(info, aircraft, fpl) {
     document.getElementById('verticalspeed').innerText = Math.round(info.VerticalSpeed)
     document.getElementById('heading').innerText = Math.round(info.Heading)
     document.getElementById('aircraft').innerText = aircraft
-    if (typeof fpl.departure !== "undefined" && typeof fpl.arrival !== "undefined" && typeof fpl.waypoints !== "undefined") {
-        document.getElementById('departure').innerText = fpl.departure
-        document.getElementById('arrival').innerText = fpl.arrival
-        document.getElementById('waypoints').innerHTML = ""
-        for (var i = 0; i < fpl.waypoints.length; i++) {
-            let waypointText = document.createElement('h5')
-            if (i !== 0) {
-                if (i == 1) {
-                    waypointText.innerText = (fpl.waypoints[i] + ' (Departure)')
-                } else if (i == fpl.waypoints.length - 1) {
-                    waypointText.innerText = (fpl.waypoints[i] + ' (Arrival)')
-                } else {
-                    waypointText.innerText = (fpl.waypoints[i])
-                }
-            }
-            document.getElementById('waypoints').appendChild(waypointText)
-        }
-    }
     document.getElementById('flight-plan').style.width = document.getElementById('flight-info-panel').offsetWidth + 'px'
     document.getElementById('speed-altitude-graph').style.width = document.getElementById('flight-info-panel').offsetWidth + 'px'
-    window.flightPlan = {};
 }
 
 function idleTimer() {
@@ -170,19 +161,37 @@ function changeServer(server) {
     loadAircraft()
 }
 
-function getFlightPlan(flightId) {
+function getFlightPlan() {
     getJSON(flightPlanUrl,
         function (err, data) {
             if (err !== null) {
                 alert('Something went wrong: ' + err);
             } else {
                 data.forEach(function (flightPlan) {
-                    if (flightPlan.FlightID == flightId) {
-                        window.flightPlan = {
+                    if (flightPlan.FlightID == window.flightIdPath) {
+                        let fpl = {
                             "departure": flightPlan.Waypoints[1],
                             "arrival": flightPlan.DestinationAirportCode,
                             "waypoints": flightPlan.Waypoints
                         };
+                        if (typeof fpl.departure !== "undefined" && typeof fpl.arrival !== "undefined" && typeof fpl.waypoints !== "undefined") {
+                            document.getElementById('departure').innerText = fpl.departure
+                            document.getElementById('arrival').innerText = fpl.arrival
+                            document.getElementById('waypoints').innerHTML = ""
+                            for (var i = 0; i < fpl.waypoints.length; i++) {
+                                let waypointText = document.createElement('h5')
+                                if (i !== 0) {
+                                    if (i == 1) {
+                                        waypointText.innerText = (fpl.waypoints[i] + ' (Departure)')
+                                    } else if (i == fpl.waypoints.length - 1) {
+                                        waypointText.innerText = (fpl.waypoints[i] + ' (Arrival)')
+                                    } else {
+                                        waypointText.innerText = (fpl.waypoints[i])
+                                    }
+                                }
+                                document.getElementById('waypoints').appendChild(waypointText)
+                            }
+                        }
                     }
                 })
             }
@@ -214,11 +223,11 @@ function updateAircraft() {
                     }
                     if (document.getElementById('flight-info-panel').style.display !== "none") {
                         data.forEach(function (aircraft) {
-                            if (aircraft.FlightID == window.flightIdPath) {
+                            if (aircraft.FlightID == window.flightIdPath && document.getElementById('flight-info-panel').style.display !== "none") {
                                 let aircraftName = aircraftList.find(object => object.AircraftId === aircraft.AircraftID).AircraftName
                                 let aircraftLivery = aircraftList.find(object => object.LiveryId === aircraft.LiveryID).LiveryName
-                                getFlightPlan(window.flightIdPath);
-                                populateInfo(aircraft, aircraftName + ' (' + aircraftLivery + ')', window.flightPlan)
+                                getFlightPlan();
+                                populateInfo(aircraft, aircraftName + ' (' + aircraftLivery + ')')
                             }
                         })
                         if (typeof window.flightIdPath !== "undefined") {
@@ -228,6 +237,80 @@ function updateAircraft() {
                 }
             })
     }
+}
+
+function searchCallsign(callsign) {
+    getJSON(serverUrl,
+        function (err, data) {
+            if (err !== null) {
+                alert('Something went wrong: ' + err);
+            } else {
+                let results = [];
+                for (var i = 0; i < data.length - 1; i++) {
+                    if (data[i].CallSign.includes(callsign)) {
+                        results.push(data[i])
+                    }
+                }
+                document.getElementById('search-results').style.display = "block"
+                document.getElementById('search-results').innerHTML = ""
+                results.forEach((aircraft) => {
+                    let br = document.createElement('br')
+                    let button = document.createElement('button')
+                    button.classList.add("mdl-button")
+                    button.classList.add("mdl-js-button")
+                    button.classList.add("mdl-js-ripple-effect")
+                    button.classList.add("mdl-button--primary")
+                    button.innerText = aircraft.CallSign
+                    button.addEventListener('click', () => {
+                        let aircraftName = aircraftList.find(object => object.AircraftId === aircraft.AircraftID).AircraftName
+                        let aircraftLivery = aircraftList.find(object => object.LiveryId === aircraft.LiveryID).LiveryName
+
+                        if (isMobile.any()) {
+                            document.getElementById('switch-map-style').style.display = "none";
+                            document.getElementById('small-flight-info-mobile').style.display = "block";
+                            document.getElementById('callsign-and-display-name-mobile').innerText = aircraft.CallSign + " (" + aircraft.DisplayName + ")"
+                            document.getElementById('mobile-aircraft-type').innerText = aircraftName + ' (' + aircraftLivery + ')'
+                            window.flightIdPath = aircraft.FlightID
+                            window.addedCoords = [];
+                            loadAircraftPath()
+                            document.getElementById('small-flight-info-mobile').addEventListener('click', () => {
+                                document.getElementById('small-flight-info-mobile').style.display = "none";
+                                document.getElementById('map').style.visibility = "none"
+                                document.getElementById('switch-map-style').style.display = "none"
+                                document.getElementById('flight-info-panel').className = "flight-info-mobile"
+                                document.getElementById('waypoints').innerHTML = "<h5>Loading...</h5>"
+                                document.getElementById('departure').innerText = "Loading..."
+                                document.getElementById('arrival').innerText = "Loading..."
+                                getFlightPlan();
+                                populateInfo(aircraft, aircraftName + ' (' + aircraftLivery + ')')
+                                getChartData(window.flightIdPath)
+                            })
+                        } else {
+                            document.getElementById('flight-info-panel').className = "flight-info-desktop"
+                            document.getElementById('waypoints').innerHTML = "<h5>Loading...</h5>"
+                            document.getElementById('departure').innerText = "Loading..."
+                            document.getElementById('arrival').innerText = "Loading..."
+                            getFlightPlan();
+                            populateInfo(aircraft, aircraftName + ' (' + aircraftLivery + ')')
+                            window.flightIdPath = aircraft.FlightID
+                            getChartData(window.flightIdPath)
+                            window.addedCoords = [];
+                            loadAircraftPath()
+                        }
+                        map.flyTo({
+                            center: [
+                                aircraft.Longitude,
+                                aircraft.Latitude
+                            ],
+                            essential: true
+                        });
+                    })
+                    document.getElementById('search-results').appendChild(button)
+                    document.getElementById('search-results').appendChild(br)
+                })
+
+            }
+        })
 }
 
 function loadAircraft() {
@@ -255,6 +338,7 @@ function loadAircraft() {
 
                         icon.addEventListener('click', () => {
                             if (isMobile.any()) {
+                                document.getElementById('switch-map-style').style.display = "none";
                                 document.getElementById('small-flight-info-mobile').style.display = "block";
                                 document.getElementById('callsign-and-display-name-mobile').innerText = aircraft.CallSign + " (" + aircraft.DisplayName + ")"
                                 document.getElementById('mobile-aircraft-type').innerText = aircraftName + ' (' + aircraftLivery + ')'
@@ -266,24 +350,24 @@ function loadAircraft() {
                                     document.getElementById('map').style.visibility = "none"
                                     document.getElementById('switch-map-style').style.display = "none"
                                     document.getElementById('flight-info-panel').className = "flight-info-mobile"
-                                    getFlightPlan(aircraft.FlightID);
-                                    populateInfo(aircraft, aircraftName + ' (' + aircraftLivery + ')', window.flightPlan)
-                                    getChartData(window.flightIdPath)
                                     document.getElementById('waypoints').innerHTML = "<h5>Loading...</h5>"
                                     document.getElementById('departure').innerText = "Loading..."
                                     document.getElementById('arrival').innerText = "Loading..."
+                                    getFlightPlan();
+                                    populateInfo(aircraft, aircraftName + ' (' + aircraftLivery + ')')
+                                    getChartData(window.flightIdPath)
                                 })
                             } else {
                                 document.getElementById('flight-info-panel').className = "flight-info-desktop"
-                                getFlightPlan(aircraft.FlightID);
-                                populateInfo(aircraft, aircraftName + ' (' + aircraftLivery + ')', window.flightPlan)
+                                document.getElementById('waypoints').innerHTML = "<h5>Loading...</h5>"
+                                document.getElementById('departure').innerText = "Loading..."
+                                document.getElementById('arrival').innerText = "Loading..."
+                                getFlightPlan();
+                                populateInfo(aircraft, aircraftName + ' (' + aircraftLivery + ')')
                                 window.flightIdPath = aircraft.FlightID
                                 getChartData(window.flightIdPath)
                                 window.addedCoords = [];
                                 loadAircraftPath()
-                                document.getElementById('waypoints').innerHTML = "<h5>Loading...</h5>"
-                                document.getElementById('departure').innerText = "Loading..."
-                                document.getElementById('arrival').innerText = "Loading..."
                             }
                         })
 
@@ -318,7 +402,7 @@ function loadAircraftPath() {
             }
         })
     }
-    
+
 }
 
 function getUserDetails(userId) {
