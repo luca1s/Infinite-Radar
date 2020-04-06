@@ -235,13 +235,16 @@ function updateAircraft() {
                                 populateInfo(aircraft, aircraftName + ' (' + aircraftLivery + ')')
                             }
                         })
-                        if (typeof window.flightIdPath !== "undefined") {
-                            getChartData(window.flightIdPath)
-                            getFlightPlan();
-                        }
                     }
                 }
             })
+    }
+}
+
+function updateGraphAndFpl() {
+    if (typeof window.flightIdPath !== "undefined" && inactive !== true) {
+        getChartData(window.flightIdPath)
+        getFlightPlan();
     }
 }
 
@@ -460,5 +463,6 @@ function drawAircraftPath(coords) {
 
 
 setInterval(updateAircraft, 10000)
+setInterval(updateGraphAndFpl, 60000)
 setInterval(loadAircraftPath, 11000)
 loadAircraft()
