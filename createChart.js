@@ -19,6 +19,7 @@ let getChartData = function (flightId) {
                 altitude.push(value.Altitude)
                 speed.push(value.Speed)
             })
+            document.getElementById('speed-altitude-graph').style.width = document.getElementById('flight-info-panel').offsetWidth + 'px'
             createChart(altitude, speed, labels)
         }
     })
