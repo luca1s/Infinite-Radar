@@ -1,7 +1,7 @@
 window.inactive = false
 window.currentMarkers = [];
-window.serverUrl = "http://infinite-flight-public-api.cloudapp.net/v1/Flights.aspx?apikey=35f43e73-c592-4ed6-8849-0965db7e2df7&sessionid=7e5dcd44-1fb5-49cc-bc2c-a9aab1f6a856"
-window.flightPlanUrl = "http://infinite-flight-public-api.cloudapp.net/v1/GetFlightPlans.aspx?apikey=35f43e73-c592-4ed6-8849-0965db7e2df7&sessionid=7e5dcd44-1fb5-49cc-bc2c-a9aab1f6a856"
+window.serverUrl = "https://Infinite-Radar-Backend.sabena32if.repl.co/?sessionid=7e5dcd44-1fb5-49cc-bc2c-a9aab1f6a856"
+window.flightPlanUrl = "https://Infinite-Radar-Backend.sabena32if.repl.co/flightPlans.php?sessionid=7e5dcd44-1fb5-49cc-bc2c-a9aab1f6a856"
 window.flightIdPath = "";
 window.addedCoords = [];
 
@@ -152,16 +152,16 @@ function changeServer(server) {
     if (server == "casual") {
         document.getElementById('flight-info-data-menu-item').click()
         document.getElementById('speed-altitude-graph-menu-item').style.display = "none";
-        serverUrl = "http://infinite-flight-public-api.cloudapp.net/v1/Flights.aspx?apikey=35f43e73-c592-4ed6-8849-0965db7e2df7&sessionid=5f3fdc11-35b8-4268-832f-42f1c6539ab9"
-        flightPlanUrl = "http://infinite-flight-public-api.cloudapp.net/v1/GetFlightPlans.aspx?apikey=35f43e73-c592-4ed6-8849-0965db7e2df7&sessionid=5f3fdc11-35b8-4268-832f-42f1c6539ab9"
+        serverUrl = "https://Infinite-Radar-Backend.sabena32if.repl.co/?sessionid=5f3fdc11-35b8-4268-832f-42f1c6539ab9"
+        flightPlanUrl = "https://Infinite-Radar-Backend.sabena32if.repl.co/flightPlans.php?sessionid=5f3fdc11-35b8-4268-832f-42f1c6539ab9"
     } else if (server == "training") {
         document.getElementById('speed-altitude-graph-menu-item').style.display = "block";
-        serverUrl = "http://infinite-flight-public-api.cloudapp.net/v1/Flights.aspx?apikey=35f43e73-c592-4ed6-8849-0965db7e2df7&sessionid=6a04ffe8-765a-4925-af26-d88029eeadba"
-        flightPlanUrl = "http://infinite-flight-public-api.cloudapp.net/v1/GetFlightPlans.aspx?apikey=35f43e73-c592-4ed6-8849-0965db7e2df7&sessionid=6a04ffe8-765a-4925-af26-d88029eeadba"
+        serverUrl = "https://Infinite-Radar-Backend.sabena32if.repl.co/?sessionid=6a04ffe8-765a-4925-af26-d88029eeadba"
+        flightPlanUrl = "https://Infinite-Radar-Backend.sabena32if.repl.co/flightPlans.php?sessionid=6a04ffe8-765a-4925-af26-d88029eeadba"
     } else {
         document.getElementById('speed-altitude-graph-menu-item').style.display = "block";
-        serverUrl = "http://infinite-flight-public-api.cloudapp.net/v1/Flights.aspx?apikey=35f43e73-c592-4ed6-8849-0965db7e2df7&sessionid=7e5dcd44-1fb5-49cc-bc2c-a9aab1f6a856"
-        flightPlanUrl = "http://infinite-flight-public-api.cloudapp.net/v1/GetFlightPlans.aspx?apikey=35f43e73-c592-4ed6-8849-0965db7e2df7&sessionid=7e5dcd44-1fb5-49cc-bc2c-a9aab1f6a856"
+        serverUrl = "https://Infinite-Radar-Backend.sabena32if.repl.co/?sessionid=7e5dcd44-1fb5-49cc-bc2c-a9aab1f6a856"
+        flightPlanUrl = "https://Infinite-Radar-Backend.sabena32if.repl.co/flightPlans.php?sessionid=7e5dcd44-1fb5-49cc-bc2c-a9aab1f6a856"
     }
     loadAircraft()
 }
@@ -398,7 +398,7 @@ function loadAircraft() {
 
 function loadAircraftPath() {
     if (inactive !== true) {
-        getJSON("http://infinite-flight-public-api.cloudapp.net/v1/FlightDetails.aspx?apikey=35f43e73-c592-4ed6-8849-0965db7e2df7&flightid=" + window.flightIdPath, function (err, data) {
+        getJSON("https://infinite-radar-backend.sabena32if.repl.co/flightDetails.php?flightid=" + window.flightIdPath, function (err, data) {
             if (err !== null) {
                 alert('Something went wrong: ' + err);
             } else {
