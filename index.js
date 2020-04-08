@@ -138,7 +138,7 @@ var getJSON = function (url, callback) {
 if (document.getElementById('speed-altitude-graph-menu-item').style.display !== "none") {
     document.getElementById('speed-altitude-graph-menu-item').addEventListener('click', () => {
         if (typeof window.flightIdPath !== "undefined")
-        getChartData(window.flightIdPath)
+            getChartData(window.flightIdPath)
     })
 }
 
@@ -241,10 +241,9 @@ function updateAircraft() {
     }
 }
 
-function updateGraphAndFpl() {
+function updateGraph() {
     if (typeof window.flightIdPath !== "undefined" && inactive !== true) {
         getChartData(window.flightIdPath)
-        getFlightPlan();
     }
 }
 
@@ -291,6 +290,7 @@ function searchCallsign(callsign) {
                                 document.getElementById('departure').innerText = "Loading..."
                                 document.getElementById('arrival').innerText = "Loading..."
                                 populateInfo(aircraft, aircraftName + ' (' + aircraftLivery + ')')
+                                getUserDetails(aircraft.UserID)
                                 getChartData(window.flightIdPath)
                                 getFlightPlan();
                             })
@@ -300,6 +300,7 @@ function searchCallsign(callsign) {
                             document.getElementById('departure').innerText = "Loading..."
                             document.getElementById('arrival').innerText = "Loading..."
                             populateInfo(aircraft, aircraftName + ' (' + aircraftLivery + ')')
+                            getUserDetails(aircraft.UserID)
                             window.flightIdPath = aircraft.FlightID
                             getChartData(window.flightIdPath)
                             getFlightPlan();
@@ -363,6 +364,7 @@ function loadAircraft() {
                                     document.getElementById('departure').innerText = "Loading..."
                                     document.getElementById('arrival').innerText = "Loading..."
                                     populateInfo(aircraft, aircraftName + ' (' + aircraftLivery + ')')
+                                    getUserDetails(aircraft.UserID)
                                     getChartData(window.flightIdPath)
                                     getFlightPlan();
                                 })
@@ -372,11 +374,12 @@ function loadAircraft() {
                                 document.getElementById('departure').innerText = "Loading..."
                                 document.getElementById('arrival').innerText = "Loading..."
                                 populateInfo(aircraft, aircraftName + ' (' + aircraftLivery + ')')
+                                getUserDetails(aircraft.UserID)
+                                loadAircraftPath()
                                 window.flightIdPath = aircraft.FlightID
                                 getChartData(window.flightIdPath)
                                 getFlightPlan();
                                 window.addedCoords = [];
-                                loadAircraftPath()
                             }
                         })
 
@@ -415,21 +418,32 @@ function loadAircraftPath() {
 }
 
 function getUserDetails(userId) {
-    var data = JSON.stringify({ "UserIDs": [userId] });
+    getJSON("https://infinite-radar-user-details.sabena32if.repl.co/?userId=" + userId, function (err, data) {
+        if (err !== null) {
+            alert('Something went wrong: ' + err);
+        } else {
+            let userDetails = {
+                "grade": data[0]["PilotStats"]["GradeName"],
+                "onlineFlights": data[0]["OnlineFlights"],
+                "flightTime": data[0]["PilotStats"]["TotalFlightTime"],
+                "violations": data[0]["PilotStats"]["TotalViolations"],
+                "landings": data[0]["PilotStats"]["TotalLandings"],
+                "xp": data[0]["PilotStats"]["TotalXP"],
+                "ghostings": data[0]["PilotStats"]["TotalATCGhostings"],
+                "ATCOps": data[0]["ATCActions"]
 
-    var xhr = new XMLHttpRequest();
-    xhr.withCredentials = true;
+            }
+            document.getElementById('grade').innerText = userDetails["grade"]
+            document.getElementById('onlineFlights').innerText = userDetails["onlineFlights"]
+            document.getElementById('flightTime').innerText = userDetails["flightTime"]
+            document.getElementById('violations').innerText = userDetails["violations"]
+            document.getElementById('landings').innerText = userDetails["landings"]
+            document.getElementById('xp').innerText = userDetails["xp"]
+            document.getElementById('ghostings').innerText = userDetails["ghostings"]
+            document.getElementById('ATCOps').innerText = userDetails["ATCOps"]
 
-    xhr.addEventListener("readystatechange", function () {
-        if (this.readyState === 4) {
-            return this.response;
         }
-    });
-
-    xhr.open("POST", "http://infinite-flight-public-api.cloudapp.net/v1/UserDetails.aspx?apikey=35f43e73-c592-4ed6-8849-0965db7e2df7");
-    xhr.setRequestHeader("Content-Type", "application/json");
-
-    xhr.send(data);
+    })
 }
 
 function drawAircraftPath(coords) {
@@ -463,6 +477,6 @@ function drawAircraftPath(coords) {
 
 
 setInterval(updateAircraft, 10000)
-setInterval(updateGraphAndFpl, 60000)
+setInterval(updateGraph, 60000)
 setInterval(loadAircraftPath, 11000)
 loadAircraft()
