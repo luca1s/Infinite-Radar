@@ -230,8 +230,16 @@ function updateAircraft() {
                     if (document.getElementById('flight-info-panel').style.display !== "none") {
                         data.forEach(function (aircraft) {
                             if (aircraft.FlightID == window.flightIdPath && document.getElementById('flight-info-panel').style.display !== "none") {
-                                let aircraftName = aircraftList.find(object => object.AircraftId === aircraft.AircraftID).AircraftName
-                                let aircraftLivery = aircraftList.find(object => object.LiveryId === aircraft.LiveryID).LiveryName
+                                if (typeof aircraftList.find(object => object.AircraftId === aircraft.AircraftID) !== "undefined") {
+                                    var aircraftName = aircraftList.find(object => object.AircraftId === aircraft.AircraftID).AircraftName
+                                } else {
+                                    var aircraftName = "Unknown"
+                                }
+                                if (typeof aircraftList.find(object => object.LiveryId === aircraft.LiveryID) !== "undefined") {
+                                    var aircraftLivery = aircraftList.find(object => object.LiveryId === aircraft.LiveryID).LiveryName
+                                } else {
+                                    var aircraftLivery = "Unknown"
+                                }
                                 populateInfo(aircraft, aircraftName + ' (' + aircraftLivery + ')')
                             }
                         })
@@ -270,8 +278,16 @@ function searchCallsign(callsign) {
                     button.classList.add("mdl-button--primary")
                     button.innerText = aircraft.CallSign
                     button.addEventListener('click', () => {
-                        let aircraftName = aircraftList.find(object => object.AircraftId === aircraft.AircraftID).AircraftName
-                        let aircraftLivery = aircraftList.find(object => object.LiveryId === aircraft.LiveryID).LiveryName
+                        if (typeof aircraftList.find(object => object.AircraftId === aircraft.AircraftID) !== "undefined") {
+                            var aircraftName = aircraftList.find(object => object.AircraftId === aircraft.AircraftID).AircraftName
+                        } else {
+                            var aircraftName = "Unknown"
+                        }
+                        if (typeof aircraftList.find(object => object.LiveryId === aircraft.LiveryID) !== "undefined") {
+                            var aircraftLivery = aircraftList.find(object => object.LiveryId === aircraft.LiveryID).LiveryName
+                        } else {
+                            var aircraftLivery = "Unknown"
+                        }
 
                         if (isMobile.any()) {
                             document.getElementById('switch-map-style').style.display = "none";
@@ -336,8 +352,16 @@ function loadAircraft() {
                     alert('Something went wrong: ' + err);
                 } else {
                     data.forEach(function (aircraft) {
-                        let aircraftName = aircraftList.find(object => object.AircraftId === aircraft.AircraftID).AircraftName
-                        let aircraftLivery = aircraftList.find(object => object.LiveryId === aircraft.LiveryID).LiveryName
+                        if (typeof aircraftList.find(object => object.AircraftId === aircraft.AircraftID) !== "undefined") {
+                            var aircraftName = aircraftList.find(object => object.AircraftId === aircraft.AircraftID).AircraftName
+                        } else {
+                            var aircraftName = "Unknown"
+                        }
+                        if (typeof aircraftList.find(object => object.LiveryId === aircraft.LiveryID) !== "undefined") {
+                            var aircraftLivery = aircraftList.find(object => object.LiveryId === aircraft.LiveryID).LiveryName
+                        } else {
+                            var aircraftLivery = "Unknown"
+                        }
                         // create a HTML element for each feature
                         var icon = document.createElement('div');
                         if (developerDisplayNames.includes(aircraft.DisplayName)) {
