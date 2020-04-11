@@ -229,6 +229,9 @@ function updateAircraft() {
                     }
                     if (document.getElementById('flight-info-panel').style.display !== "none") {
                         data.forEach(function (aircraft) {
+                            if (typeof window.focusedAircraft !== "undefined" && window.focusedAircraft == aircraft.FlightID) {
+                                focusAircraft(aircraft)
+                            }
                             if (aircraft.FlightID == window.flightIdPath && document.getElementById('flight-info-panel').style.display !== "none") {
                                 if (typeof aircraftList.find(object => object.AircraftId === aircraft.AircraftID) !== "undefined") {
                                     var aircraftName = aircraftList.find(object => object.AircraftId === aircraft.AircraftID).AircraftName
@@ -241,6 +244,9 @@ function updateAircraft() {
                                     var aircraftLivery = "Unknown"
                                 }
                                 populateInfo(aircraft, aircraftName + ' (' + aircraftLivery + ')')
+                                if (typeof window.focusedAircraft !== "undefined" && window.focusedAircraft == aircraft.FlightID) {
+                                    focusAircraft(aircraft)
+                                }
                             }
                         })
                     }
@@ -253,6 +259,29 @@ function updateGraph() {
     if (typeof window.flightIdPath !== "undefined" && inactive !== true) {
         getChartData(window.flightIdPath)
     }
+}
+
+function toggleFocus(flight) {
+    if (typeof window.focusedAircraft !== "undefined") {
+        unfocusAircraft()
+    } else {
+        focusAircraft(flight)
+    }
+}
+
+function focusAircraft(aircraft) {
+    window.focusedAircraft = aircraft.FlightID;
+    map.flyTo({
+        center: [
+            aircraft.Longitude,
+            aircraft.Latitude
+        ],
+        essential: true
+    });
+}
+
+function unfocusAircraft() {
+    delete window.focusedAircraft;
 }
 
 function searchCallsign(callsign) {
@@ -278,6 +307,9 @@ function searchCallsign(callsign) {
                     button.classList.add("mdl-button--primary")
                     button.innerText = aircraft.CallSign
                     button.addEventListener('click', () => {
+                        if (typeof window.focusedAircraft !== "undefined") {
+                            focusAircraft(aircraft)
+                        }
                         if (typeof aircraftList.find(object => object.AircraftId === aircraft.AircraftID) !== "undefined") {
                             var aircraftName = aircraftList.find(object => object.AircraftId === aircraft.AircraftID).AircraftName
                         } else {
@@ -309,8 +341,12 @@ function searchCallsign(callsign) {
                                 getUserDetails(aircraft.UserID)
                                 getChartData(window.flightIdPath)
                                 getFlightPlan();
+                                document.getElementById('focus-aircraft').onclick = function () {
+                                    toggleFocus(aircraft)
+                                }
                             })
                         } else {
+                            loadAircraftPath()
                             document.getElementById('flight-info-panel').className = "flight-info-desktop"
                             document.getElementById('waypoints').innerHTML = "<h5>Loading...</h5>"
                             document.getElementById('departure').innerText = "Loading..."
@@ -321,7 +357,9 @@ function searchCallsign(callsign) {
                             getChartData(window.flightIdPath)
                             getFlightPlan();
                             window.addedCoords = [];
-                            loadAircraftPath()
+                            document.getElementById('focus-aircraft').onclick = function () {
+                                toggleFocus(aircraft)
+                            }
                         }
                         map.flyTo({
                             center: [
@@ -352,16 +390,6 @@ function loadAircraft() {
                     alert('Something went wrong: ' + err);
                 } else {
                     data.forEach(function (aircraft) {
-                        if (typeof aircraftList.find(object => object.AircraftId === aircraft.AircraftID) !== "undefined") {
-                            var aircraftName = aircraftList.find(object => object.AircraftId === aircraft.AircraftID).AircraftName
-                        } else {
-                            var aircraftName = "Unknown"
-                        }
-                        if (typeof aircraftList.find(object => object.LiveryId === aircraft.LiveryID) !== "undefined") {
-                            var aircraftLivery = aircraftList.find(object => object.LiveryId === aircraft.LiveryID).LiveryName
-                        } else {
-                            var aircraftLivery = "Unknown"
-                        }
                         // create a HTML element for each feature
                         var icon = document.createElement('div');
                         if (developerDisplayNames.includes(aircraft.DisplayName)) {
@@ -371,6 +399,19 @@ function loadAircraft() {
                         }
 
                         icon.addEventListener('click', () => {
+                            if (typeof aircraftList.find(object => object.AircraftId === aircraft.AircraftID) !== "undefined") {
+                                var aircraftName = aircraftList.find(object => object.AircraftId === aircraft.AircraftID).AircraftName
+                            } else {
+                                var aircraftName = "Unknown"
+                            }
+                            if (typeof aircraftList.find(object => object.LiveryId === aircraft.LiveryID) !== "undefined") {
+                                var aircraftLivery = aircraftList.find(object => object.LiveryId === aircraft.LiveryID).LiveryName
+                            } else {
+                                var aircraftLivery = "Unknown"
+                            }
+                            if (typeof window.focusedAircraft !== "undefined") {
+                                focusAircraft(aircraft)
+                            }
                             if (isMobile.any()) {
                                 document.getElementById('switch-map-style').style.display = "none";
                                 document.getElementById('small-flight-info-mobile').style.display = "block";
@@ -391,19 +432,25 @@ function loadAircraft() {
                                     getUserDetails(aircraft.UserID)
                                     getChartData(window.flightIdPath)
                                     getFlightPlan();
+                                    document.getElementById('focus-aircraft').onclick = function () {
+                                        toggleFocus(aircraft)
+                                    }
                                 })
-                            } else {
+                            } else {                     
+                                loadAircraftPath()
                                 document.getElementById('flight-info-panel').className = "flight-info-desktop"
                                 document.getElementById('waypoints').innerHTML = "<h5>Loading...</h5>"
                                 document.getElementById('departure').innerText = "Loading..."
                                 document.getElementById('arrival').innerText = "Loading..."
                                 populateInfo(aircraft, aircraftName + ' (' + aircraftLivery + ')')
                                 getUserDetails(aircraft.UserID)
-                                loadAircraftPath()
                                 window.flightIdPath = aircraft.FlightID
                                 getChartData(window.flightIdPath)
                                 getFlightPlan();
                                 window.addedCoords = [];
+                                document.getElementById('focus-aircraft').onclick = function () {
+                                    toggleFocus(aircraft)
+                                }
                             }
                         })
 
