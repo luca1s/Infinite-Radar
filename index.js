@@ -227,11 +227,11 @@ function updateAircraft() {
                             currentMarkers[i].content.setRotation(heading - 90);
                         }
                     }
-                    if (document.getElementById('flight-info-panel').style.display !== "none") {
-                        data.forEach(function (aircraft) {
-                            if (typeof window.focusedAircraft !== "undefined" && window.focusedAircraft == aircraft.FlightID) {
-                                focusAircraft(aircraft)
-                            }
+                    data.forEach(function (aircraft) {
+                        if (typeof window.focusedAircraft !== "undefined" && window.focusedAircraft == aircraft.FlightID) {
+                            focusAircraft(aircraft)
+                        }
+                        if (document.getElementById('flight-info-panel').style.display !== "none") {
                             if (aircraft.FlightID == window.flightIdPath && document.getElementById('flight-info-panel').style.display !== "none") {
                                 if (typeof aircraftList.find(object => object.AircraftId === aircraft.AircraftID) !== "undefined") {
                                     var aircraftName = aircraftList.find(object => object.AircraftId === aircraft.AircraftID).AircraftName
@@ -248,8 +248,8 @@ function updateAircraft() {
                                     focusAircraft(aircraft)
                                 }
                             }
-                        })
-                    }
+                        }
+                    })
                 }
             })
     }
@@ -436,7 +436,7 @@ function loadAircraft() {
                                         toggleFocus(aircraft)
                                     }
                                 })
-                            } else {                     
+                            } else {
                                 loadAircraftPath()
                                 document.getElementById('flight-info-panel').className = "flight-info-desktop"
                                 document.getElementById('waypoints').innerHTML = "<h5>Loading...</h5>"
