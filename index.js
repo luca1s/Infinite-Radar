@@ -4,7 +4,7 @@ window.serverUrl = "https://Infinite-Radar-Backend.sabena32if.repl.co/?sessionid
 window.flightPlanUrl = "https://Infinite-Radar-Backend.sabena32if.repl.co/flightPlans.php?sessionid=7e5dcd44-1fb5-49cc-bc2c-a9aab1f6a856"
 window.flightIdPath = "";
 window.addedCoords = [];
-
+window.navJSON = []
 
 window.addEventListener("orientationchange", function () {
     if (isMobile.any() && document.getElementById('flight-info-panel').style.display !== "none") {
@@ -63,6 +63,153 @@ var styleInputs = styleList.getElementsByTagName('input');
 
 for (var i = 0; i < styleInputs.length; i++) {
     styleInputs[i].onclick = setStyle;
+}
+
+
+function distanceLatLong(lat1, lon1, lat2, lon2) {
+    if ((lat1 == lat2) && (lon1 == lon2)) {
+        return 0;
+    }
+    else {
+        var radlat1 = Math.PI * lat1 / 180;
+        var radlat2 = Math.PI * lat2 / 180;
+        var theta = lon1 - lon2;
+        var radtheta = Math.PI * theta / 180;
+        var dist = Math.sin(radlat1) * Math.sin(radlat2) + Math.cos(radlat1) * Math.cos(radlat2) * Math.cos(radtheta);
+        if (dist > 1) {
+            dist = 1;
+        }
+        dist = Math.acos(dist);
+        dist = dist * 180 / Math.PI;
+        dist = dist * 60 * 1.1515;
+        dist = dist * 0.8684
+        return dist;
+    }
+}
+
+function distanceBetweenWaypoints(waypoints, startingWaypoint) {
+    let distance = 0;
+
+    for (var i = 0; i < waypoints.length - 1; i = i + 1) {
+        if (i == 0) {
+            if (typeof startingWaypoint !== "undefined") {
+                var waypoint1 = startingWaypoint
+            } else {
+                var waypoint1 = navJSON.find(o => o.name === waypoints[i]);
+            }
+        } else {
+            var waypoint1 = findNearestWaypoint(waypoint1, waypoints[i])
+        }
+        let waypoint2 = findNearestWaypoint(waypoint1, waypoints[i + 1])
+        distance = distance + (distanceLatLong(waypoint1["latitude"], waypoint1["longitude"], waypoint2["latitude"], waypoint2["longitude"]))
+    }
+    return distance;
+}
+
+function timeConvert(n) {
+    var num = n;
+    var hours = (num / 60);
+    var rhours = Math.floor(hours);
+    var minutes = (hours - rhours) * 60;
+    var rminutes = Math.round(minutes);
+    return rhours + " hour(s) and " + rminutes + " minute(s).";
+}
+
+function getRemainingFlight(waypoints) {
+    getJSON(serverUrl,
+        function (err, data) {
+            if (err !== null) {
+                alert('Something went wrong: ' + err);
+            } else {
+                data.forEach(function (flight) {
+                    if (flight.FlightID == window.flightIdPath) {
+                        let closestWaypointIndex = 0;
+                        let closestWaypointDistance = Infinity
+                        let closestWaypoint = {}
+                        for (var i = 0; i < waypoints.length - 1; i++) {
+                            if (i == 0) {
+                                var fullWaypoint = navJSON.find(o => o.name === waypoints[i]);
+                            } else {
+                                var fullWaypoint = findNearestWaypoint(fullWaypoint, waypoints[i])
+                            }
+                            if (distanceLatLong(fullWaypoint.latitude, fullWaypoint.longitude, flight.Latitude, flight.Longitude) < closestWaypointDistance) {
+                                closestWaypointIndex = i
+                                closestWaypoint = fullWaypoint
+                                closestWaypointDistance = distanceLatLong(fullWaypoint.latitude, fullWaypoint.longitude, flight.Latitude, flight.Longitude)
+                            }
+                        }
+                        let finalDistance = distanceLatLong(closestWaypoint.latitude, closestWaypoint.longitude, flight.Latitude, flight.Longitude)
+                        let newWaypoints = waypoints.slice(closestWaypointIndex)
+                        finalDistance = finalDistance + distanceBetweenWaypoints(newWaypoints, closestWaypoint)
+                        document.getElementById('remaining-distance').innerText = Math.round(finalDistance) + "nm"
+                        document.getElementById('remaining-time').innerText = timeConvert((finalDistance / flight.Speed) * 60)
+                        return finalDistance
+                    }
+                })
+            }
+        })
+}
+
+function createNavData() {
+    var xmlHttp = new XMLHttpRequest();
+    xmlHttp.open("GET", "https://raw.githubusercontent.com/InfiniteFlightAirportEditing/Navigation/master/dat/navigation.dat", false);
+    xmlHttp.send(null);
+    let responseArray = (xmlHttp.responseText).split(/\r?\n/)
+    delete responseArray[0];
+    delete responseArray[1];
+    delete responseArray[2];
+    responseArray.forEach((navPoint) => {
+        navPoint = navPoint.split(" ")
+        navJSON.push({
+            "name": navPoint[8].toString(),
+            "latitude": navPoint[1].toString(),
+            "longitude": navPoint[2].toString()
+        })
+        navJSON.push({
+            "name": navPoint[7].toString(),
+            "latitude": navPoint[1].toString(),
+            "longitude": navPoint[2].toString()
+        })
+    })
+    getJSON("https://raw.githubusercontent.com/InfiniteFlightAirportEditing/Navigation/master/Fixes.json", function (err, data) {
+        if (err !== null) {
+            alert('Something went wrong: ' + err);
+        } else {
+            data.forEach((navPoint) => {
+                navJSON.push({
+                    "name": navPoint["Name"].toString(),
+                    "latitude": navPoint["Latitude"].toString(),
+                    "longitude": navPoint["Longitude"].toString()
+                })
+            })
+        }
+    })
+    getJSON("https://raw.githubusercontent.com/InfiniteFlightAirportEditing/Navigation/master/VOR.json", function (err, data) {
+        if (err !== null) {
+            alert('Something went wrong: ' + err);
+        } else {
+            data.forEach((navPoint) => {
+                navJSON.push({
+                    "name": navPoint["identifier"].toString(),
+                    "latitude": navPoint["latitude"].toString(),
+                    "longitude": navPoint["longitude"].toString()
+                })
+            })
+        }
+    })
+    getJSON("https://raw.githubusercontent.com/InfiniteFlightAirportEditing/Navigation/master/Glideslope.json", function (err, data) {
+        if (err !== null) {
+            alert('Something went wrong: ' + err);
+        } else {
+            data.forEach((navPoint) => {
+                navJSON.push({
+                    "name": navPoint["airportICAO"].toString(),
+                    "latitude": navPoint["latitude"].toString(),
+                    "longitude": navPoint["longitude"].toString()
+                })
+            })
+        }
+    })
 }
 
 function setStyle(style) {
@@ -149,6 +296,8 @@ function changeServer(server) {
     window.flightIdPath = "";
     if (map.getLayer('aircraftPath')) map.removeLayer('aircraftPath');
     if (map.getSource('aircraftPath')) map.removeSource('aircraftPath');
+    if (map.getLayer('aircraftFpl')) map.removeLayer('aircraftFpl');
+    if (map.getSource('aircraftFpl')) map.removeSource('aircraftFpl');
     if (server == "casual") {
         document.getElementById('flight-info-data-menu-item').click()
         document.getElementById('speed-altitude-graph-menu-item').style.display = "none";
@@ -197,11 +346,45 @@ function getFlightPlan() {
                                 }
                                 document.getElementById('waypoints').appendChild(waypointText)
                             }
+                            let distanceWaypoints = []
+                            for (var i = 1; i < fpl.waypoints.length; i++) {
+                                if (typeof navJSON.find(wpt => wpt.name === fpl.waypoints[i]) !== "undefined") {
+                                    distanceWaypoints.push(fpl.waypoints[i])
+                                }
+                            }
+                            let coordinatesFpl = []
+                            for (var i = 0; i < distanceWaypoints.length; i++) {
+                                if (typeof navJSON.find(wpt => wpt.name === distanceWaypoints[i]) !== "undefined") {
+                                    if (i == 0) {
+                                        var previousWaypoint = navJSON.find(wpt => wpt.name === distanceWaypoints[i])
+                                        coordinatesFpl.push([navJSON.find(wpt => wpt.name === distanceWaypoints[i]).longitude, navJSON.find(wpt => wpt.name === distanceWaypoints[i]).latitude])
+                                    } else {
+                                        var previousWaypoint = findNearestWaypoint(previousWaypoint, distanceWaypoints[i])
+                                        coordinatesFpl.push([findNearestWaypoint(previousWaypoint, distanceWaypoints[i]).longitude, findNearestWaypoint(previousWaypoint, distanceWaypoints[i]).latitude])
+                                    }
+                                }
+                            }
+                            drawAircraftFpl(coordinatesFpl)
+                            document.getElementById('total-distance').innerText = Math.round(distanceBetweenWaypoints(distanceWaypoints)) + "nm"
+                            getRemainingFlight(distanceWaypoints)
                         }
                     }
                 })
             }
         })
+}
+
+function findNearestWaypoint(pastWaypoint, name) {
+    let matchingWaypoints = navJSON.filter(wpt => wpt.name == name);
+    let closestWaypointDist = Infinity;
+    let closestWaypoint = {}
+    for (var i = 0; i < matchingWaypoints.length; i++) {
+        if (distanceLatLong(pastWaypoint["latitude"], pastWaypoint["longitude"], matchingWaypoints[i]["latitude"], matchingWaypoints[i]["longitude"]) < closestWaypointDist) {
+            closestWaypointDist = distanceLatLong(pastWaypoint.latitude, pastWaypoint.longitude, matchingWaypoints[i].latitude, matchingWaypoints[i].longitude);
+            closestWaypoint = matchingWaypoints[i]
+        }
+    }
+    return closestWaypoint
 }
 
 function updateAircraft() {
@@ -224,7 +407,7 @@ function updateAircraft() {
                             currentMarkers[i].content
                                 .setLngLat([long, lat])
 
-                            currentMarkers[i].content.setRotation(heading - 90);
+                            currentMarkers[i].content.setRotation(heading - 45);
                         }
                     }
                     data.forEach(function (aircraft) {
@@ -258,6 +441,12 @@ function updateAircraft() {
 function updateGraph() {
     if (typeof window.flightIdPath !== "undefined" && inactive !== true) {
         getChartData(window.flightIdPath)
+    }
+}
+
+function updateFpl() {
+    if (typeof window.flightIdPath !== "undefined" && inactive !== true) {
+        getFlightPlan();
     }
 }
 
@@ -307,6 +496,14 @@ function searchCallsign(callsign) {
                     button.classList.add("mdl-button--primary")
                     button.innerText = aircraft.CallSign
                     button.addEventListener('click', () => {
+
+
+                        if (map.getLayer('aircraftPath')) map.removeLayer('aircraftPath');
+                        if (map.getSource('aircraftPath')) map.removeSource('aircraftPath');
+                        if (map.getLayer('aircraftFpl')) map.removeLayer('aircraftFpl');
+                        if (map.getSource('aircraftFpl')) map.removeSource('aircraftFpl');
+                        window.flightIdPath = ""
+
                         if (typeof window.focusedAircraft !== "undefined") {
                             focusAircraft(aircraft)
                         }
@@ -337,6 +534,9 @@ function searchCallsign(callsign) {
                                 document.getElementById('waypoints').innerHTML = "<h5>Loading...</h5>"
                                 document.getElementById('departure').innerText = "Loading..."
                                 document.getElementById('arrival').innerText = "Loading..."
+                                document.getElementById('total-distance').innerText = "Loading..."
+                                document.getElementById('remaining-distance').innerText = "Loading..."
+                                document.getElementById('remaining-time').innerText = "Loading..."
                                 populateInfo(aircraft, aircraftName + ' (' + aircraftLivery + ')')
                                 getUserDetails(aircraft.UserID)
                                 getChartData(window.flightIdPath)
@@ -351,6 +551,9 @@ function searchCallsign(callsign) {
                             document.getElementById('waypoints').innerHTML = "<h5>Loading...</h5>"
                             document.getElementById('departure').innerText = "Loading..."
                             document.getElementById('arrival').innerText = "Loading..."
+                            document.getElementById('total-distance').innerText = "Loading..."
+                            document.getElementById('remaining-distance').innerText = "Loading..."
+                            document.getElementById('remaining-time').innerText = "Loading..."
                             populateInfo(aircraft, aircraftName + ' (' + aircraftLivery + ')')
                             getUserDetails(aircraft.UserID)
                             window.flightIdPath = aircraft.FlightID
@@ -399,6 +602,12 @@ function loadAircraft() {
                         }
 
                         icon.addEventListener('click', () => {
+                            if (map.getLayer('aircraftPath')) map.removeLayer('aircraftPath');
+                            if (map.getSource('aircraftPath')) map.removeSource('aircraftPath');
+                            if (map.getLayer('aircraftFpl')) map.removeLayer('aircraftFpl');
+                            if (map.getSource('aircraftFpl')) map.removeSource('aircraftFpl');
+                            window.flightIdPath = ""
+
                             if (typeof aircraftList.find(object => object.AircraftId === aircraft.AircraftID) !== "undefined") {
                                 var aircraftName = aircraftList.find(object => object.AircraftId === aircraft.AircraftID).AircraftName
                             } else {
@@ -442,6 +651,9 @@ function loadAircraft() {
                                 document.getElementById('waypoints').innerHTML = "<h5>Loading...</h5>"
                                 document.getElementById('departure').innerText = "Loading..."
                                 document.getElementById('arrival').innerText = "Loading..."
+                                document.getElementById('total-distance').innerText = "Loading..."
+                                document.getElementById('remaining-distance').innerText = "Loading..."
+                                document.getElementById('remaining-time').innerText = "Loading..."
                                 populateInfo(aircraft, aircraftName + ' (' + aircraftLivery + ')')
                                 getUserDetails(aircraft.UserID)
                                 window.flightIdPath = aircraft.FlightID
@@ -458,7 +670,7 @@ function loadAircraft() {
                         let newMarker = new mapboxgl.Marker(icon)
                             .setLngLat([aircraft.Longitude, aircraft.Latitude])
                             .addTo(map);
-                        newMarker.setRotation(aircraft.Heading - 90);
+                        newMarker.setRotation(aircraft.Heading - 45);
                         currentMarkers.push(
                             {
                                 id: aircraft.FlightID,
@@ -546,8 +758,38 @@ function drawAircraftPath(coords) {
     });
 }
 
+function drawAircraftFpl(coords) {
+    if (map.getLayer('aircraftFpl')) map.removeLayer('aircraftFpl');
+    if (map.getSource('aircraftFpl')) map.removeSource('aircraftFpl');
+    map.addSource('aircraftFpl', {
+        'type': 'geojson',
+        'data': {
+            'type': 'Feature',
+            'properties': {},
+            'geometry': {
+                'type': 'LineString',
+                'coordinates': coords
+            }
+        }
+    });
+    map.addLayer({
+        'id': 'aircraftFpl',
+        'type': 'line',
+        'source': 'aircraftFpl',
+        'layout': {
+            'line-join': 'round',
+            'line-cap': 'round'
+        },
+        'paint': {
+            'line-color': 'blue',
+            'line-width': 1
+        }
+    });
+}
 
 setInterval(updateAircraft, 10000)
 setInterval(updateGraph, 60000)
 setInterval(loadAircraftPath, 11000)
+setInterval(updateFpl, 30000)
 loadAircraft()
+createNavData()
