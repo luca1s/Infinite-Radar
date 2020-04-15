@@ -128,7 +128,7 @@ function getRemainingFlight(waypoints) {
                         let closestWaypoint = {}
                         for (var i = 0; i < waypoints.length - 1; i++) {
                             if (i == 0) {
-                                var fullWaypoint = navJSON.find(o => o.name === waypoints[i]);
+                                var fullWaypoint = findNearestWaypointToLatLng(flight.Latitude, flight.Longitude, waypoints[i])
                             } else {
                                 var fullWaypoint = findNearestWaypoint(fullWaypoint, waypoints[i])
                             }
@@ -381,6 +381,19 @@ function findNearestWaypoint(pastWaypoint, name) {
     for (var i = 0; i < matchingWaypoints.length; i++) {
         if (distanceLatLong(pastWaypoint["latitude"], pastWaypoint["longitude"], matchingWaypoints[i]["latitude"], matchingWaypoints[i]["longitude"]) < closestWaypointDist) {
             closestWaypointDist = distanceLatLong(pastWaypoint.latitude, pastWaypoint.longitude, matchingWaypoints[i].latitude, matchingWaypoints[i].longitude);
+            closestWaypoint = matchingWaypoints[i]
+        }
+    }
+    return closestWaypoint
+}
+
+function findNearestWaypointToLatLng(lat, long, name) {
+    let matchingWaypoints = navJSON.filter(wpt => wpt.name == name);
+    let closestWaypointDist = Infinity;
+    let closestWaypoint = {}
+    for (var i = 0; i < matchingWaypoints.length; i++) {
+        if (distanceLatLong(lat, long, matchingWaypoints[i]["latitude"], matchingWaypoints[i]["longitude"]) < closestWaypointDist) {
+            closestWaypointDist = distanceLatLong(lat, long, matchingWaypoints[i].latitude, matchingWaypoints[i].longitude);
             closestWaypoint = matchingWaypoints[i]
         }
     }
