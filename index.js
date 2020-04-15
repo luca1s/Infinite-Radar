@@ -116,38 +116,35 @@ function timeConvert(n) {
 }
 
 function getRemainingFlight(waypoints) {
-    getJSON(serverUrl,
-        function (err, data) {
-            if (err !== null) {
-                alert('Something went wrong: ' + err);
-            } else {
-                data.forEach(function (flight) {
-                    if (flight.FlightID == window.flightIdPath) {
-                        let closestWaypointIndex = 0;
-                        let closestWaypointDistance = Infinity
-                        let closestWaypoint = {}
-                        for (var i = 0; i < waypoints.length - 1; i++) {
-                            if (i == 0) {
-                                var fullWaypoint = findNearestWaypointToLatLng(flight.Latitude, flight.Longitude, waypoints[i])
-                            } else {
-                                var fullWaypoint = findNearestWaypoint(fullWaypoint, waypoints[i])
-                            }
-                            if (distanceLatLong(fullWaypoint.latitude, fullWaypoint.longitude, flight.Latitude, flight.Longitude) < closestWaypointDistance) {
-                                closestWaypointIndex = i
-                                closestWaypoint = fullWaypoint
-                                closestWaypointDistance = distanceLatLong(fullWaypoint.latitude, fullWaypoint.longitude, flight.Latitude, flight.Longitude)
-                            }
-                        }
-                        let finalDistance = distanceLatLong(closestWaypoint.latitude, closestWaypoint.longitude, flight.Latitude, flight.Longitude)
-                        let newWaypoints = waypoints.slice(closestWaypointIndex)
-                        finalDistance = finalDistance + distanceBetweenWaypoints(newWaypoints, closestWaypoint)
-                        document.getElementById('remaining-distance').innerText = Math.round(finalDistance) + "nm"
-                        document.getElementById('remaining-time').innerText = timeConvert((finalDistance / flight.Speed) * 60)
-                        return finalDistance
-                    }
-                })
+    getJSON("https://infinite-radar-backend.sabena32if.repl.co/flightDetails.php?flightid=" + window.flightIdPath, function (err, data) {
+        if (err !== null) {
+            alert('Something went wrong: ' + err);
+        } else {
+            let distance = 0;
+            for (var i = 0; i < data.length - 1; i++) {
+                distance = distance + distanceLatLong(data[i].Latitude, data[i].Longitude, data[i + 1].Latitude, data[i + 1].Longitude)
             }
-        })
+            let remainingDistance = Math.round(distanceBetweenWaypoints(waypoints) - distance)
+            if (remainingDistance > 0) {
+                document.getElementById('remaining-distance').innerText = remainingDistance + "nm"
+                getJSON(serverUrl,
+                    function (err, data) {
+                        if (err !== null) {
+                            alert('Something went wrong: ' + err);
+                        } else {
+                            data.forEach(function (flight) {
+                                if (flight.FlightID == window.flightIdPath) {
+                                    document.getElementById('remaining-time').innerText = timeConvert((remainingDistance / flight.Speed) * 60)
+                                }
+                            })
+                        }
+                    })
+            } else {
+                document.getElementById('remaining-distance').innerText = "N/A"
+                document.getElementById('remaining-time').innerText = "N/A"
+            }
+        }
+    })
 }
 
 function createNavData() {
