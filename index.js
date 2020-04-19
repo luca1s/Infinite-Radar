@@ -477,9 +477,13 @@ function focusAircraft(aircraft) {
         ],
         essential: true
     });
+    map["dragPan"].disable();
+    map["keyboard"].disable();
 }
 
 function unfocusAircraft() {
+    map["dragPan"].enable();
+    map["keyboard"].enable();
     delete window.focusedAircraft;
 }
 
