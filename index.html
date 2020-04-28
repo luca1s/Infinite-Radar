@@ -51,9 +51,15 @@
             <div id="map"></div>
             <div id="search">
                 <div style="width: auto;" class="mdl-textfield mdl-js-textfield">
-                    <input class="mdl-textfield__input" onchange="searchCallsign(this.value)" id="search-field">
+                    <input id="filter-text" class="mdl-textfield__input" onchange="search()" id="search-field">
                     <label class="mdl-textfield__label" for="search-field">Search...</label>
                 </div>
+                <label style="color: #757575" for="filterBy">Search by: </label>
+                <select class="mdl-textfield__input" id="filterBy">
+                    <option value="CallSign">callsign</option>
+                    <option value="DisplayName">display name</option>
+                    <option value="AircraftID">aircraft</option>
+                </select>
                 <div id="search-results" style="background-color: white;">
                 </div>
             </div>

@@ -487,17 +487,38 @@ function unfocusAircraft() {
     delete window.focusedAircraft;
 }
 
-function searchCallsign(callsign) {
+function search() {
+    let filter = document.getElementById('filter-text').value
+    let filterBy = document.getElementById('filterBy').value
+    if (filterBy == "AircraftID") {
+        let filterList = aircraftList.filter(object => object.AircraftName.indexOf(filter) !== -1)
+        filter = [];
+        filterList.forEach((individualAircraftId) => {
+            if (!filter.includes(individualAircraftId.AircraftId)) {
+                filter.push(individualAircraftId.AircraftId)
+            }
+        })
+    }
     getJSON(serverUrl,
         function (err, data) {
             if (err !== null) {
                 alert('Something went wrong: ' + err);
             } else {
                 let results = [];
-                for (var i = 0; i < data.length - 1; i++) {
-                    if (data[i].CallSign.includes(callsign)) {
-                        results.push(data[i])
+                if (typeof filter !== "object") {
+                    for (var i = 0; i < data.length - 1; i++) {
+                        if (data[i][filterBy].includes(filter)) {
+                            results.push(data[i])
+                        }
                     }
+                } else {
+                    filter.forEach((individualFilter) => {
+                        for (var i = 0; i < data.length - 1; i++) {
+                            if (data[i][filterBy] == individualFilter) {
+                                results.push(data[i])
+                            }
+                        }
+                    })
                 }
                 document.getElementById('search-results').style.display = "block"
                 document.getElementById('search-results').innerHTML = ""
@@ -508,7 +529,11 @@ function searchCallsign(callsign) {
                     button.classList.add("mdl-js-button")
                     button.classList.add("mdl-js-ripple-effect")
                     button.classList.add("mdl-button--primary")
-                    button.innerText = aircraft.CallSign
+                    if (filterBy !== "AircraftID") {
+                        button.innerText = aircraft[filterBy]
+                    } else {
+                        button.innerText = aircraft.CallSign
+                    }
                     button.addEventListener('click', () => {
 
 
