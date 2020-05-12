@@ -4,7 +4,7 @@ function fileTimeToDate(fileTime) {
 
 
 let getChartData = function (flightId) {
-    getJSON("https://infinite-radar-backend.sabena32if.repl.co/flightDetails.php?flightid=" + flightId, function (err, data) {
+    getJSON("https://infinite-radar.sabena32if.repl.co/flightDetails/?flightid=" + flightId, function (err, data) {
         if (err !== null) {
             alert('Something went wrong: ' + err);
         } else {

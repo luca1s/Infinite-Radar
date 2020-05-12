@@ -1,7 +1,7 @@
 window.inactive = false
 window.currentMarkers = [];
-window.serverUrl = "https://Infinite-Radar-Backend.sabena32if.repl.co/?sessionid=7e5dcd44-1fb5-49cc-bc2c-a9aab1f6a856"
-window.flightPlanUrl = "https://Infinite-Radar-Backend.sabena32if.repl.co/flightPlans.php?sessionid=7e5dcd44-1fb5-49cc-bc2c-a9aab1f6a856"
+window.serverUrl = "https://infinite-radar.sabena32if.repl.co/flights/?sessionid=7e5dcd44-1fb5-49cc-bc2c-a9aab1f6a856"
+window.flightPlanUrl = "https://infinite-radar.sabena32if.repl.co/flightPlans/?sessionid=7e5dcd44-1fb5-49cc-bc2c-a9aab1f6a856"
 window.flightIdPath = "";
 window.addedCoords = [];
 window.navJSON = []
@@ -116,7 +116,7 @@ function timeConvert(n) {
 }
 
 function getRemainingFlight(waypoints) {
-    getJSON("https://infinite-radar-backend.sabena32if.repl.co/flightDetails.php?flightid=" + window.flightIdPath, function (err, data) {
+    getJSON("https://infinite-radar.sabena32if.repl.co/flightDetails/?flightid=" + window.flightIdPath, function (err, data) {
         if (err !== null) {
             alert('Something went wrong: ' + err);
         } else {
@@ -346,16 +346,16 @@ function changeServer(server) {
     if (server == "casual") {
         document.getElementById('flight-info-data-menu-item').click()
         document.getElementById('speed-altitude-graph-menu-item').style.display = "none";
-        serverUrl = "https://Infinite-Radar-Backend.sabena32if.repl.co/?sessionid=5f3fdc11-35b8-4268-832f-42f1c6539ab9"
-        flightPlanUrl = "https://Infinite-Radar-Backend.sabena32if.repl.co/flightPlans.php?sessionid=5f3fdc11-35b8-4268-832f-42f1c6539ab9"
+        serverUrl = "https://infinite-radar.sabena32if.repl.co/flights/?sessionid=5f3fdc11-35b8-4268-832f-42f1c6539ab9"
+        flightPlanUrl = "https://infinite-radar.sabena32if.repl.co/flightPlans/?sessionid=5f3fdc11-35b8-4268-832f-42f1c6539ab9"
     } else if (server == "training") {
         document.getElementById('speed-altitude-graph-menu-item').style.display = "block";
-        serverUrl = "https://Infinite-Radar-Backend.sabena32if.repl.co/?sessionid=6a04ffe8-765a-4925-af26-d88029eeadba"
-        flightPlanUrl = "https://Infinite-Radar-Backend.sabena32if.repl.co/flightPlans.php?sessionid=6a04ffe8-765a-4925-af26-d88029eeadba"
+        serverUrl = "https://infinite-radar.sabena32if.repl.co/flights/?sessionid=6a04ffe8-765a-4925-af26-d88029eeadba"
+        flightPlanUrl = "https://infinite-radar.sabena32if.repl.co/flightPlans/?sessionid=6a04ffe8-765a-4925-af26-d88029eeadba"
     } else {
         document.getElementById('speed-altitude-graph-menu-item').style.display = "block";
-        serverUrl = "https://Infinite-Radar-Backend.sabena32if.repl.co/?sessionid=7e5dcd44-1fb5-49cc-bc2c-a9aab1f6a856"
-        flightPlanUrl = "https://Infinite-Radar-Backend.sabena32if.repl.co/flightPlans.php?sessionid=7e5dcd44-1fb5-49cc-bc2c-a9aab1f6a856"
+        serverUrl = "https://infinite-radar.sabena32if.repl.co/flights/?sessionid=7e5dcd44-1fb5-49cc-bc2c-a9aab1f6a856"
+        flightPlanUrl = "https://infinite-radar.sabena32if.repl.co/flightPlans/?sessionid=7e5dcd44-1fb5-49cc-bc2c-a9aab1f6a856"
     }
     loadAircraft()
 }
@@ -773,9 +773,115 @@ function loadAircraft() {
     }
 }
 
+function loadAircraftFiltered(filter, filterBy) {
+    if (inactive !== true) {
+        if (currentMarkers !== null) {
+            for (var i = 0; i < (currentMarkers.length - 1); i++) {
+                currentMarkers[i].content.remove();
+            }
+        }
+        getJSON(serverUrl,
+            function (err, data) {
+                if (err !== null) {
+                    alert('Something went wrong: ' + err);
+                } else {
+                    data.forEach(function (aircraft) {
+                        if (aircraft[filterBy].startsWith(filter)) {
+                            // create a HTML element for each feature
+                            var icon = document.createElement('div');
+                            if (developerDisplayNames.includes(aircraft.DisplayName)) {
+                                icon.className = 'marker-developer';
+                            } else {
+                                icon.className = 'marker';
+                            }
+
+                            icon.addEventListener('click', () => {
+                                if (map.getLayer('aircraftPath')) map.removeLayer('aircraftPath');
+                                if (map.getSource('aircraftPath')) map.removeSource('aircraftPath');
+                                if (map.getLayer('aircraftFpl')) map.removeLayer('aircraftFpl');
+                                if (map.getSource('aircraftFpl')) map.removeSource('aircraftFpl');
+                                window.flightIdPath = ""
+
+                                if (typeof aircraftList.find(object => object.AircraftId === aircraft.AircraftID) !== "undefined") {
+                                    var aircraftName = aircraftList.find(object => object.AircraftId === aircraft.AircraftID).AircraftName
+                                } else {
+                                    var aircraftName = "Unknown"
+                                }
+                                if (typeof aircraftList.find(object => object.LiveryId === aircraft.LiveryID) !== "undefined") {
+                                    var aircraftLivery = aircraftList.find(object => object.LiveryId === aircraft.LiveryID).LiveryName
+                                } else {
+                                    var aircraftLivery = "Unknown"
+                                }
+                                if (typeof window.focusedAircraft !== "undefined") {
+                                    focusAircraft(aircraft)
+                                }
+                                if (isMobile.any()) {
+                                    document.getElementById('switch-map-style').style.display = "none";
+                                    document.getElementById('small-flight-info-mobile').style.display = "block";
+                                    document.getElementById('callsign-and-display-name-mobile').innerText = aircraft.CallSign + " (" + aircraft.DisplayName + ")"
+                                    document.getElementById('mobile-aircraft-type').innerText = aircraftName + ' (' + aircraftLivery + ')'
+                                    window.flightIdPath = aircraft.FlightID
+                                    window.addedCoords = [];
+                                    loadAircraftPath()
+                                    document.getElementById('small-flight-info-mobile').addEventListener('click', () => {
+                                        document.getElementById('small-flight-info-mobile').style.display = "none";
+                                        document.getElementById('map').style.visibility = "none"
+                                        document.getElementById('switch-map-style').style.display = "none"
+                                        document.getElementById('flight-info-panel').className = "flight-info-mobile"
+                                        document.getElementById('waypoints').innerHTML = "<h5>Loading...</h5>"
+                                        document.getElementById('departure').innerText = "Loading..."
+                                        document.getElementById('arrival').innerText = "Loading..."
+                                        populateInfo(aircraft, aircraftName + ' (' + aircraftLivery + ')')
+                                        getUserDetails(aircraft.UserID)
+                                        getChartData(window.flightIdPath)
+                                        getFlightPlan();
+                                        document.getElementById('focus-aircraft').onclick = function () {
+                                            toggleFocus(aircraft)
+                                        }
+                                    })
+                                } else {
+                                    loadAircraftPath()
+                                    document.getElementById('flight-info-panel').className = "flight-info-desktop"
+                                    document.getElementById('waypoints').innerHTML = "<h5>Loading...</h5>"
+                                    document.getElementById('departure').innerText = "Loading..."
+                                    document.getElementById('arrival').innerText = "Loading..."
+                                    document.getElementById('total-distance').innerText = "Loading..."
+                                    document.getElementById('remaining-distance').innerText = "Loading..."
+                                    document.getElementById('remaining-time').innerText = "Loading..."
+                                    populateInfo(aircraft, aircraftName + ' (' + aircraftLivery + ')')
+                                    getUserDetails(aircraft.UserID)
+                                    window.flightIdPath = aircraft.FlightID
+                                    getChartData(window.flightIdPath)
+                                    getFlightPlan();
+                                    window.addedCoords = [];
+                                    document.getElementById('focus-aircraft').onclick = function () {
+                                        toggleFocus(aircraft)
+                                    }
+                                }
+                            })
+
+                            // make a marker for each feature and add to the map
+                            let newMarker = new mapboxgl.Marker(icon)
+                                .setLngLat([aircraft.Longitude, aircraft.Latitude])
+                                .addTo(map);
+                            newMarker.setRotationAlignment("map")
+                            newMarker.setPitchAlignment("map")
+                            newMarker.setRotation(aircraft.Heading - 45);
+                            currentMarkers.push(
+                                {
+                                    id: aircraft.FlightID,
+                                    content: newMarker
+                                })
+                        }
+                    })
+                }
+            })
+    }
+}
+
 function loadAircraftPath() {
     if (inactive !== true) {
-        getJSON("https://infinite-radar-backend.sabena32if.repl.co/flightDetails.php?flightid=" + window.flightIdPath, function (err, data) {
+        getJSON("https://infinite-radar.sabena32if.repl.co/flightDetails/?flightid=" + window.flightIdPath, function (err, data) {
             if (err !== null) {
                 alert('Something went wrong: ' + err);
             } else {
@@ -792,7 +898,7 @@ function loadAircraftPath() {
 }
 
 function getUserDetails(userId) {
-    getJSON("https://infinite-radar-user-details.sabena32if.repl.co/?userId=" + userId, function (err, data) {
+    getJSON("https://infinite-radar.sabena32if.repl.co/userDetails?userId=" + userId, function (err, data) {
         if (err !== null) {
             alert('Something went wrong: ' + err);
         } else {
@@ -878,9 +984,34 @@ function drawAircraftFpl(coords) {
     });
 }
 
+function getQueryVariable(variable) {
+    var query = window.location.search.substring(1)
+    var vars = query.split('&')
+    for (var i = 0; i < vars.length; i++) {
+        var pair = vars[i].split('=')
+        if (pair[0] == variable) {
+            return pair[1]
+        }
+    }
+    return false
+}
+
+if (getQueryVariable("filter") !== false) {
+    if (getQueryVariable("server") !== false) {
+        changeServer(getQueryVariable("server"))
+    }
+    if (getQueryVariable("removeServerSwitch") !== false) {
+        document.getElementById('header-desktop').style.display = "none"
+        document.getElementById('header-mobile').style.display = "none"
+    }
+    document.getElementById("search").style.display = "none"
+    loadAircraftFiltered(getQueryVariable("filter"), getQueryVariable("filterBy"))
+} else {
+    loadAircraft()
+}
+
 setInterval(updateAircraft, 10000)
 setInterval(updateGraph, 60000)
 setInterval(loadAircraftPath, 11000)
 setInterval(updateFpl, 30000)
-loadAircraft()
 createNavData()
