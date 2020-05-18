@@ -212,6 +212,22 @@ function createNavData() {
 function setStyle(style) {
     var styleId = style.target.value;
     map.setStyle('mapbox://styles/mapbox/' + styleId);
+    setTimeout(() => {
+        if (map.getLayer('clouds')) map.removeLayer('clouds');
+        if (map.getSource('clouds')) map.removeSource('clouds');
+        map.addLayer({
+            "id": "clouds",
+            "type": "raster",
+            "source": {
+                "id": "clouds-source",
+                "type": "raster",
+                "tiles": ["https://tile.openweathermap.org/map/clouds_new/{z}/{x}/{y}.png?appid=c7ac6a16600296a881de6d9c6e7381ac"],
+                "tileSize": 256
+            },
+            "minzoom": 0,
+            "maxzoom": 22
+        });
+    }, 1000)
 }
 
 function populateInfo(info, aircraft) {
@@ -258,6 +274,20 @@ var map = new mapboxgl.Map({
     style: 'mapbox://styles/mapbox/streets-v11',
     zoom: '1',
     antialias: true,
+});
+map.on('load', function () {
+    map.addLayer({
+        "id": "clouds",
+        "type": "raster",
+        "source": {
+            "id": "clouds-source",
+            "type": "raster",
+            "tiles": ["https://tile.openweathermap.org/map/clouds_new/{z}/{x}/{y}.png?appid=c7ac6a16600296a881de6d9c6e7381ac"],
+            "tileSize": 256
+        },
+        "minzoom": 0,
+        "maxzoom": 22
+    });
 });
 
 map.on('load', function () {
@@ -357,7 +387,11 @@ function changeServer(server) {
         serverUrl = "https://infinite-radar.sabena32if.repl.co/flights/?sessionid=7e5dcd44-1fb5-49cc-bc2c-a9aab1f6a856"
         flightPlanUrl = "https://infinite-radar.sabena32if.repl.co/flightPlans/?sessionid=7e5dcd44-1fb5-49cc-bc2c-a9aab1f6a856"
     }
-    loadAircraft()
+    if (getQueryVariable("filter") !== false) {
+        loadAircraftFiltered(getQueryVariable("filter"), getQueryVariable("filterBy"))
+    } else {
+        loadAircraft()
+    }
 }
 
 function getFlightPlan() {
