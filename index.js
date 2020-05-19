@@ -5,6 +5,7 @@ window.flightPlanUrl = "https://infinite-radar.sabena32if.repl.co/flightPlans/?s
 window.flightIdPath = "";
 window.addedCoords = [];
 window.navJSON = []
+let clouds = true;
 
 window.addEventListener("orientationchange", function () {
     if (isMobile.any() && document.getElementById('flight-info-panel').style.display !== "none") {
@@ -212,22 +213,24 @@ function createNavData() {
 function setStyle(style) {
     var styleId = style.target.value;
     map.setStyle('mapbox://styles/mapbox/' + styleId);
-    setTimeout(() => {
-        if (map.getLayer('clouds')) map.removeLayer('clouds');
-        if (map.getSource('clouds')) map.removeSource('clouds');
-        map.addLayer({
-            "id": "clouds",
-            "type": "raster",
-            "source": {
-                "id": "clouds-source",
+    if (clouds !== false) {
+        setTimeout(() => {
+            if (map.getLayer('clouds')) map.removeLayer('clouds');
+            if (map.getSource('clouds')) map.removeSource('clouds');
+            map.addLayer({
+                "id": "clouds",
                 "type": "raster",
-                "tiles": ["https://tile.openweathermap.org/map/clouds_new/{z}/{x}/{y}.png?appid=c7ac6a16600296a881de6d9c6e7381ac"],
-                "tileSize": 256
-            },
-            "minzoom": 0,
-            "maxzoom": 22
-        });
-    }, 1000)
+                "source": {
+                    "id": "clouds-source",
+                    "type": "raster",
+                    "tiles": ["https://tile.openweathermap.org/map/clouds_new/{z}/{x}/{y}.png?appid=c7ac6a16600296a881de6d9c6e7381ac"],
+                    "tileSize": 256
+                },
+                "minzoom": 0,
+                "maxzoom": 22
+            });
+        }, 1000)
+    }
 }
 
 function populateInfo(info, aircraft) {
@@ -267,6 +270,35 @@ function idleTimer() {
 }
 idleTimer();
 
+document.getElementById('switch-clouds').addEventListener('click', () => {
+    toggleClouds()
+})
+
+function toggleClouds() {
+    if (typeof map.getLayer('clouds') !== "undefined") {
+        setTimeout(() => {
+            map.removeLayer('clouds');
+            map.removeSource('clouds');
+        }, 1000)
+        clouds = false
+    } else {
+        clouds = true
+        if (map.getLayer('clouds')) map.removeLayer('clouds');
+        if (map.getSource('clouds')) map.removeSource('clouds');
+        map.addLayer({
+            "id": "clouds",
+            "type": "raster",
+            "source": {
+                "id": "clouds-source",
+                "type": "raster",
+                "tiles": ["https://tile.openweathermap.org/map/clouds_new/{z}/{x}/{y}.png?appid=c7ac6a16600296a881de6d9c6e7381ac"],
+                "tileSize": 256
+            },
+            "minzoom": 0,
+            "maxzoom": 22
+        });
+    }
+}
 
 mapboxgl.accessToken = 'pk.eyJ1IjoiaHltZW5vcHVzIiwiYSI6ImNrN21mbDE1NDBoYTMzbG8waHIzODRnZmQifQ.Sm-p5MctdQjaXASfQWejog';
 var map = new mapboxgl.Map({
@@ -276,18 +308,20 @@ var map = new mapboxgl.Map({
     antialias: true,
 });
 map.on('load', function () {
-    map.addLayer({
-        "id": "clouds",
-        "type": "raster",
-        "source": {
-            "id": "clouds-source",
+    if (clouds !== false) {
+        map.addLayer({
+            "id": "clouds",
             "type": "raster",
-            "tiles": ["https://tile.openweathermap.org/map/clouds_new/{z}/{x}/{y}.png?appid=c7ac6a16600296a881de6d9c6e7381ac"],
-            "tileSize": 256
-        },
-        "minzoom": 0,
-        "maxzoom": 22
-    });
+            "source": {
+                "id": "clouds-source",
+                "type": "raster",
+                "tiles": ["https://tile.openweathermap.org/map/clouds_new/{z}/{x}/{y}.png?appid=c7ac6a16600296a881de6d9c6e7381ac"],
+                "tileSize": 256
+            },
+            "minzoom": 0,
+            "maxzoom": 22
+        });
+    }
 });
 
 map.on('load', function () {

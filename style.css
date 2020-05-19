@@ -10,7 +10,7 @@
   .switch-map-style-desktop {
     margin-top: 5px;
     padding: 5px;
-    border-radius: 49px;
+    border-radius: 5px;
     background-color: white;
     left: 10px;
     position: absolute;
@@ -19,7 +19,7 @@
   .switch-map-style-mobile {
     margin-top: 5px;
     padding: 5px;
-    border-radius: 49px;
+    border-radius: 5px;
     background-color: white;
     bottom: 20px;
     margin-left: 25%;
