@@ -520,7 +520,7 @@ function updateAircraft() {
                 if (err !== null) {
                     alert('Something went wrong: ' + err);
                 } else {
-                    for (var i = 0; i < (currentMarkers.length - 1); i++) {
+                    for (var i = 0; i < (currentMarkers.length); i++) {
                         if (typeof data.find(item => item.FlightID === currentMarkers[i].id) !== undefined && data.find(item => item.FlightID === currentMarkers[i].id) !== undefined) {
 
                             let heading = data.find(item => item.FlightID === currentMarkers[i].id).Heading;
@@ -854,7 +854,7 @@ function loadAircraftFiltered(filter, filterBy) {
                     alert('Something went wrong: ' + err);
                 } else {
                     data.forEach(function (aircraft) {
-                        if (aircraft[filterBy].startsWith(filter)) {
+                        if (aircraft[filterBy].startsWith(filter) && typeof (currentMarkers.find(element => element.id == aircraft.FlightID)) == "undefined") {
                             // create a HTML element for each feature
                             var icon = document.createElement('div');
                             if (developerDisplayNames.includes(aircraft.DisplayName)) {
