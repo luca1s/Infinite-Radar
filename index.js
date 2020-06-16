@@ -246,8 +246,6 @@ function populateInfo(info, aircraft) {
 
 function idleTimer() {
     var t;
-    //window.onload = resetTimer;
-    window.onmousemove = resetTimer; // catches mouse movements
     window.onmousedown = resetTimer; // catches mouse movements
     window.onclick = resetTimer;     // catches mouse clicks
     window.onscroll = resetTimer;    // catches scrolling
