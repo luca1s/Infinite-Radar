@@ -132,3 +132,13 @@
     max-height: 75px;
     overflow-y: scroll;
   }
+
+  #weather-panel {
+    background-color: white;
+    position: absolute;
+    max-width: 150px;
+    bottom: 50px;
+    padding: 5px;
+    border-radius: 5px;
+    left: 5px;
+  }

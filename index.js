@@ -5,7 +5,13 @@ window.flightPlanUrl = "https://infinite-radar.sabena32if.repl.co/flightPlans/?s
 window.flightIdPath = "";
 window.addedCoords = [];
 window.navJSON = []
-let clouds = true;
+let weatherStatus = {
+    "clouds_new": false,
+    "precipitation_new": false,
+    "pressure_new": false,
+    "wind_new": false,
+    "temp_new": false,
+};
 
 window.addEventListener("orientationchange", function () {
     if (isMobile.any() && document.getElementById('flight-info-panel').style.display !== "none") {
@@ -44,8 +50,10 @@ var isMobile = {
 
 if (isMobile.any()) {
     document.getElementById('switch-map-style').className = "switch-map-style-mobile"
+    document.getElementById('weather-panel').remove();
 } else {
     document.getElementById('switch-map-style').className = "switch-map-style-desktop"
+    document.getElementById('weather-panel-mobile').remove();
 }
 
 let developerDisplayNames = ["IFC - Qantas094", "IFYT HymenopusC", "IPP IFSims", "IFC - Ondrejj", "IPP TSATC Sashaz55"]
@@ -213,23 +221,17 @@ function createNavData() {
 function setStyle(style) {
     var styleId = style.target.value;
     map.setStyle('mapbox://styles/mapbox/' + styleId);
-    if (clouds !== false) {
-        setTimeout(() => {
-            if (map.getLayer('clouds')) map.removeLayer('clouds');
-            if (map.getSource('clouds')) map.removeSource('clouds');
-            map.addLayer({
-                "id": "clouds",
-                "type": "raster",
-                "source": {
-                    "id": "clouds-source",
-                    "type": "raster",
-                    "tiles": ["https://tile.openweathermap.org/map/clouds_new/{z}/{x}/{y}.png?appid=c7ac6a16600296a881de6d9c6e7381ac"],
-                    "tileSize": 256
-                },
-                "minzoom": 0,
-                "maxzoom": 22
-            });
-        }, 1000)
+    weatherStatus = {
+        "clouds_new": false,
+        "precipitation_new": false,
+        "pressure_new": false,
+        "wind_new": false,
+        "temp_new": false,
+    };
+    if (isMobile.any()) {
+        uncheckAll('weather-panel-mobile')
+    } else {
+        uncheckAll('weather-panel')
     }
 }
 
@@ -253,43 +255,48 @@ function idleTimer() {
 
     function pauseActivity() {
         inactive = true
-        confirm("You've been inactive for a while! Click 'Ok' to continue using Infinite Radar", function (confirmed) {
-            if (confirmed) {
-                resetTimer()
-                inactive = false
-            }
-        })
+        let confirmed = confirm("You've been inactive for a while! Click 'Ok' to continue using Infinite Radar")
+        if (confirmed) {
+            resetTimer()
+            inactive = false
+        }
     }
 
     function resetTimer() {
         clearTimeout(t);
-        t = setTimeout(pauseActivity, 900000);  // time is in milliseconds (1000 is 1 second)
+        t = setTimeout(pauseActivity, 300000);  // time is in milliseconds (1000 is 1 second)
     }
 }
 idleTimer();
 
-document.getElementById('switch-clouds').addEventListener('click', () => {
-    toggleClouds()
-})
+function uncheckAll(divId) {
+    let checks = document.getElementById(divId).getElementsByClassName('mdl-checkbox')
+    for(var i = 0; i < checks.length; i++){
+        let check = checks[i];
+        if(check.classList.contains('is-checked')){
+            check.classList.remove('is-checked')
+        }
+    }
+}
 
-function toggleClouds() {
-    if (typeof map.getLayer('clouds') !== "undefined") {
+function toggleWeather(type) {
+    if (typeof map.getLayer(type) !== "undefined") {
         setTimeout(() => {
-            map.removeLayer('clouds');
-            map.removeSource('clouds');
+            map.removeLayer(type);
+            map.removeSource(type);
         }, 1000)
-        clouds = false
+        weatherStatus[type] = false
     } else {
-        clouds = true
-        if (map.getLayer('clouds')) map.removeLayer('clouds');
-        if (map.getSource('clouds')) map.removeSource('clouds');
+        weatherStatus[type] = true
+        if (map.getLayer(type)) map.removeLayer(type);
+        if (map.getSource(type)) map.removeSource(type);
         map.addLayer({
-            "id": "clouds",
+            "id": type,
             "type": "raster",
             "source": {
-                "id": "clouds-source",
+                "id": type,
                 "type": "raster",
-                "tiles": ["https://tile.openweathermap.org/map/clouds_new/{z}/{x}/{y}.png?appid=c7ac6a16600296a881de6d9c6e7381ac"],
+                "tiles": ["https://tile.openweathermap.org/map/" + type + "/{z}/{x}/{y}.png?appid=c7ac6a16600296a881de6d9c6e7381ac"],
                 "tileSize": 256
             },
             "minzoom": 0,
@@ -304,22 +311,6 @@ var map = new mapboxgl.Map({
     style: 'mapbox://styles/mapbox/streets-v11',
     zoom: '1',
     antialias: true,
-});
-map.on('load', function () {
-    if (clouds !== false) {
-        map.addLayer({
-            "id": "clouds",
-            "type": "raster",
-            "source": {
-                "id": "clouds-source",
-                "type": "raster",
-                "tiles": ["https://tile.openweathermap.org/map/clouds_new/{z}/{x}/{y}.png?appid=c7ac6a16600296a881de6d9c6e7381ac"],
-                "tileSize": 256
-            },
-            "minzoom": 0,
-            "maxzoom": 22
-        });
-    }
 });
 
 map.on('load', function () {

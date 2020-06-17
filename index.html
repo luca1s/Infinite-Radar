@@ -45,6 +45,32 @@
                 <a class="mdl-navigation__link no-select" onclick="changeServer('casual')">Casual Server</a>
                 <a class="mdl-navigation__link no-select" onclick="changeServer('training')">Training Server</a>
                 <a class="mdl-navigation__link no-select" onclick="changeServer('expert')">Expert Server</a>
+                <div class="mdl-navigation__link no-select" id="weather-panel-mobile">
+                    <label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="clouds_new">
+                      <input type="checkbox" onclick="toggleWeather(this.id)" id="clouds_new" class="mdl-checkbox__input">
+                      <span class="mdl-checkbox__label">Clouds</span>
+                    </label>
+                    <br>
+                    <label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="precipitation_new">
+                      <input type="checkbox" onclick="toggleWeather(this.id)" id="precipitation_new" class="mdl-checkbox__input">
+                      <span class="mdl-checkbox__label">Precipitation</span>
+                    </label>
+                    <br>
+                    <label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="pressure_new">
+                      <input type="checkbox" onclick="toggleWeather(this.id)" id="pressure_new" class="mdl-checkbox__input">
+                      <span class="mdl-checkbox__label">Pressure</span>
+                    </label>
+                    <br>
+                     <label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="wind_new">
+                      <input type="checkbox" onclick="toggleWeather(this.id)" id="wind_new" class="mdl-checkbox__input">
+                      <span class="mdl-checkbox__label">Wind</span>
+                    </label>
+                    <br>
+                    <label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="temp_new">
+                      <input type="checkbox" onclick="toggleWeather(this.id)" id="temp_new" class="mdl-checkbox__input">
+                      <span class="mdl-checkbox__label">Temperature</span>
+                    </label>
+                  </div>
             </nav>
         </div>
         <main class="mdl-layout__content">
@@ -75,10 +101,6 @@
                     <span class="mdl-radio__label">Satellite</span>
                 </label>
                 <br>
-                <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="switch-clouds">
-                    <span class="mdl-switch__label">Clouds</span>
-                    <input type="checkbox" id="switch-clouds" class="mdl-switch__input" checked>
-                </label>
             </div>
             <div id="flight-info-panel" class="flight-info-desktop" style="display: none;">
                 <div class="mdl-tabs mdl-js-tabs mdl-js-ripple-effect">
@@ -260,6 +282,32 @@
                 <h5 id="callsign-and-display-name-mobile"></h5>
                 <h5 id="mobile-aircraft-type"></h5>
             </div>
+            <div id="weather-panel">
+                <label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="clouds_new">
+                  <input type="checkbox" onclick="toggleWeather(this.id)" id="clouds_new" class="mdl-checkbox__input">
+                  <span class="mdl-checkbox__label">Clouds</span>
+                </label>
+                <br>
+                <label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="precipitation_new">
+                  <input type="checkbox" onclick="toggleWeather(this.id)" id="precipitation_new" class="mdl-checkbox__input">
+                  <span class="mdl-checkbox__label">Precipitation</span>
+                </label>
+                <br>
+                <label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="pressure_new">
+                  <input type="checkbox" onclick="toggleWeather(this.id)" id="pressure_new" class="mdl-checkbox__input">
+                  <span class="mdl-checkbox__label">Pressure</span>
+                </label>
+                <br>
+                 <label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="wind_new">
+                  <input type="checkbox" onclick="toggleWeather(this.id)" id="wind_new" class="mdl-checkbox__input">
+                  <span class="mdl-checkbox__label">Wind</span>
+                </label>
+                <br>
+                <label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="temp_new">
+                  <input type="checkbox" onclick="toggleWeather(this.id)" id="temp_new" class="mdl-checkbox__input">
+                  <span class="mdl-checkbox__label">Temperature</span>
+                </label>
+              </div>
         </main>
     </div>
 </body>
